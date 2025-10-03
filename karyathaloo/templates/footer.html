@@ -6,7 +6,7 @@
                 <h3 class="text-white">Contact Information</h3>
 
                 <p style="color:goldenrod; font-size: 17px"><i class= "fa fa-map-marker text-gander"></i> Pokhara, Nepal</p>
-                <p style="color:goldenrod; font-size: 17px"><i class= "fa fa-envelope text-gander"></i> jobportal227@gmail.com</p>
+                <p style="color:goldenrod; font-size: 17px"><i class= "fa fa-envelope text-gander"></i> karyathalo227@gmail.com</p>
                 <p style="color:goldenrod; font-size: 17px"><i class= "fa fa-mobile text-gander"></i> Phone:+977 9807573643/ +977 98637673637</p>
 
             </div>
@@ -15,16 +15,53 @@
                 <p style="color:goldenrod; font-size: 17px">Connecting talents with opportunities. Our mission is to make job hunting and hiring easier, faster and smarter.</p>
 
             </div>
-            <div class="col-md-4 mt-3">
-                <h3 class="text-white">NewsLetter</h3>
-                <p style="color:goldenrod; font-size: 17px">If you want the extra information. Please send the email ID</p>
-                <form method="post" class="form-inline">
-                    {% csrf_token %}
-                    <input type="'email" name="emailid" placeholder="Email ID" required class="form-control mr-2">
-                    <input type="submit" value="Send" class="btn-btn-primary"> 
-                </form>
-            </div>
+<div class="col-md-4 mt-3">
+    <h3 class="text-white">Newsletter</h3>
+    <p style="color:goldenrod; font-size: 17px">
+        If you want extra information, please send your email ID
+    </p>
+    <form id="newsletterForm" class="form-inline">
+        {% csrf_token %}
+        <input type="email" name="emailid" placeholder="Email ID" required class="form-control mr-2">
+        <input type="submit" value="Send" class="btn btn-primary"> 
+    </form>
+    <div id="newsletterMessage" class="mt-2"></div>
+</div>
+
+{% if messages %}
+  {% for message in messages %}
+    <div class="alert alert-success">{{ message }}</div>
+  {% endfor %}
+{% endif %}
+
         </div>
     </div>
         
 </div>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+$(document).ready(function(){
+    $("#newsletterForm").submit(function(e){
+        e.preventDefault(); // prevent page reload
+
+        var email = $("input[name='emailid']").val();
+        var csrfToken = $("input[name='csrfmiddlewaretoken']").val();
+
+        $.ajax({
+            url: "{% url 'newsletter' %}",
+            type: "POST",
+            data: {
+                'emailid': email,
+                'csrfmiddlewaretoken': csrfToken
+            },
+            success: function(response){
+                $("#newsletterMessage").html('<div class="alert alert-success">Thank you! Subscription successful.</div>');
+                $("#newsletterForm")[0].reset(); // reset form
+            },
+            error: function(){
+                $("#newsletterMessage").html('<div class="alert alert-danger">Something went wrong. Please try again.</div>');
+            }
+        });
+    });
+});
+</script>

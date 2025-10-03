@@ -86,3 +86,14 @@ class Apply(models.Model):
         return f"{self.student.user.username} applied to {self.job.title}"
 
 
+
+class Subscriber(models.Model):
+    email = models.EmailField(unique=True)
+    subscribed_at = models.DateTimeField(auto_now_add=True)
+    active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.email
+
+
+

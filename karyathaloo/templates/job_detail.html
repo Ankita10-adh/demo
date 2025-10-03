@@ -39,10 +39,11 @@
           <a href="{% url 'apply_job' job.id %}" class="btn btn-primary btn-lg mt-3">
             <i class="fas fa-paper-plane me-2"></i> Apply Now
           </a>
-        
+   <!-------->
           <p style="color: rgb(37, 18, 76);  font-size: 22px;margin-top: 20px; margin-left:175px;font-weight: bold;"> Please contact us for the more info.</p>
-           <div class="col-sm-6 mb-2" style="margin-left: 250px; font-weight: bold;font-size: 22px;"><i class="fas fa-phone me-2"></i>{{ job.recruiter.mobile }}</div>
-          <div class="col-sm-6 mb-2" style="margin-left: 250px; font-weight: bold;font-size: 22px;"><i class="fas fa-envelope me-2"></i>{{ job.recruiter.user.email }}</div>
+                     <a href="{% url 'recruiter_contact' job.id %}"style="margin-left:200px" class="btn btn-info btn-lg mt-3 ms-2">
+  <i style="margin-left: 6px;" class="fas fa-envelope"></i> Contact Recruiter
+</a>
         </div>
       </div>
     </div>

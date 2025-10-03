@@ -57,7 +57,7 @@ urlpatterns = [
     path('delete_job/<int:job_id>/',delete_job, name='delete_job'),
     path("recruiter/applicants/<int:job_id>/",recruiter_applied_candidates, name="recruiter_applied_candidates"),
     #path("recruiter/application/update/<int:app_id>/<str:new_status>/",update_applicant_status, name="update_applicant_status"),
+    path("recruiter_contact/<int:job_id>/",recruiter_contact, name="recruiter_contact"),
+     path('newsletter/',newsletter, name='newsletter'),
 
-    # Student Side
-    
 ]+static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT)

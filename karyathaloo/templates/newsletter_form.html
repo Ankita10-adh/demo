@@ -1,0 +1,40 @@
+<form id="newsletterForm" method="post">
+    {% csrf_token %}
+    {{ form.email }}
+
+    <!-- Honeypot field -->
+    <div style="display:none;">
+        {{ form.website }}
+    </div>
+
+    <!-- reCAPTCHA -->
+    <div class="g-recaptcha" data-sitekey="{{ RECAPTCHA_SITE_KEY }}"></div>
+
+    <input type="submit" value="Subscribe" class="btn btn-gradient mt-2">
+</form>
+<div id="newsletterMessage" class="mt-2"></div>
+
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+$(document).ready(function(){
+    $("#newsletterForm").submit(function(e){
+        e.preventDefault();
+        var formData = $(this).serialize();
+        $.ajax({
+            url: "{% url 'newsletter' %}",
+            type: "POST",
+            data: formData,
+            success: function(response){
+                $("#newsletterMessage").html('<div class="alert alert-success">' + response.message + '</div>');
+                $("#newsletterForm")[0].reset();
+            },
+            error: function(xhr){
+                let err = xhr.responseJSON?.error || 'Something went wrong';
+                $("#newsletterMessage").html('<div class="alert alert-danger">' + err + '</div>');
+            }
+        });
+    });
+});
+</script>

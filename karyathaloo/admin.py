@@ -5,4 +5,5 @@ admin.site.register(UserProfile)
 admin.site.register(Recruiter)
 admin.site.register(Job)
 admin.site.register(Apply)
+admin.site.register(Subscriber)
 

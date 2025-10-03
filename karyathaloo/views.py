@@ -14,6 +14,8 @@ from datetime import date
 
 
 
+
+
 def index(request):
     return render(request,'index.html')
 
@@ -802,4 +804,92 @@ def recruiter_applied_candidates(request):
     return render(request, "applied_candidates.html", {"applications": applications})
 
 
+def recruiter_contact(request, job_id):
+    # Get the job first
+    job = get_object_or_404(Job, id=job_id)
 
+    # Get recruiter from the job
+    recruiter = job.recruiter
+
+    return render(request, "recruiter_contact.html", {
+        "job": job,
+        "recruiter": recruiter
+    })
+
+
+
+"""
+from django.http import JsonResponse
+from django.core.mail import send_mail
+from django.conf import settings
+from .forms import NewsletterForm
+from .models import Subscriber
+
+def newsletter(request):
+    if request.method == "POST":
+        form = NewsletterForm(request.POST)
+        if form.is_valid():
+            # Honeypot check
+            if form.cleaned_data.get('website'):
+                return JsonResponse({'error': 'Spam detected'}, status=400)
+
+            email = form.cleaned_data['email']
+
+            # Save subscriber if new
+            subscriber, created = Subscriber.objects.get_or_create(email=email)
+            if created:
+                # Send confirmation to subscriber
+                send_mail(
+                    'Newsletter Subscription',
+                    'Thank you for subscribing to our newsletter!',
+                    settings.DEFAULT_FROM_EMAIL,
+                    [email],
+                    fail_silently=False,
+                )
+
+                # Notify admin
+                send_mail(
+                    'New Subscriber',
+                    f'New subscriber: {email}',
+                    settings.DEFAULT_FROM_EMAIL,
+                    [settings.DEFAULT_FROM_EMAIL],
+                    fail_silently=False,
+                )
+
+            return JsonResponse({'message': 'Subscription successful'})
+
+        else:
+            return JsonResponse({'error': 'Invalid submission'}, status=400)
+
+    return JsonResponse({'error': 'Invalid request'}, status=400)"""
+
+import requests
+from django.http import JsonResponse
+from .forms import NewsletterForm
+from django.conf import settings
+
+def newsletter(request):
+    if request.method == "POST":
+        form = NewsletterForm(request.POST)
+        recaptcha_response = request.POST.get('g-recaptcha-response')
+
+        # Verify reCAPTCHA
+        data = {
+            'secret': settings.RECAPTCHA_SECRET_KEY,
+            'response': recaptcha_response
+        }
+        r = requests.post('https://www.google.com/recaptcha/api/siteverify', data=data)
+        result = r.json()
+
+        if not result.get('success'):
+            return JsonResponse({"error": "Invalid reCAPTCHA. Please try again."}, status=400)
+
+        # Check form validity
+        if form.is_valid():
+            form.save()
+            return JsonResponse({"message": "Thank you for subscribing!"})
+        else:
+            error_msg = list(form.errors.values())[0][0]
+            return JsonResponse({"error": error_msg}, status=400)
+
+    return JsonResponse({"error": "Invalid request method"}, status=405)

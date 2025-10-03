@@ -1,0 +1,113 @@
+{% load static %}
+{% block body %}
+{% include 'user_navigation.html' %}
+
+<div class="container my-5 d-flex justify-content-center">
+  <div class="contact-card p-5 rounded-4 shadow-lg text-center">
+
+    <!-- Recruiter Image -->
+    {% if recruiter.image %}
+      <img src="{{ recruiter.image.url }}" alt="{{ recruiter.user.username }}" class="rounded-circle mb-4" style="width: 120px; height: 120px; object-fit: cover; border: 3px solid #fff;">
+    {% else %}
+      <div class="rounded-circle mb-4" style="width: 120px; height: 120px; background: #0d6efd; display: inline-block; line-height: 120px; color: #fff; font-size: 40px;">
+        {{ recruiter.user.username|slice:":1"|upper }}
+      </div>
+    {% endif %}
+
+    <h3 class="fw-bold mb-2">{{ recruiter.user.username }}</h3>
+    <p class="text-muted mb-3">Company: {{ recruiter.company|default:"Company Not Provided" }}</p>
+
+    <!-- Contact Info -->
+    <div class="text-start">
+      {% if recruiter.email and recruiter.email != recruiter.user.email %}
+        <p><i class="fas fa-envelope"></i> 
+          <a href="mailto:{{ recruiter.email }}">{{ recruiter.email }}</a>
+        </p>
+      {% endif %}
+
+      {% if recruiter.user.email %}
+        <p><i class="fas fa-envelope-open-text"></i> 
+          <a href="mailto:{{ recruiter.user.email }}">{{ recruiter.user.email }}</a>
+        </p>
+      {% else %}
+        <p><i class="fas fa-envelope-open-text"></i> Account Email: Not Provided</p>
+      {% endif %}
+
+      {% if recruiter.mobile %}
+        <p><i class="fas fa-phone"></i> 
+          <a href="tel:{{ recruiter.mobile }}">{{ recruiter.mobile }}</a>
+        </p>
+      {% else %}
+        <p><i class="fas fa-phone"></i> Contact No: Not Provided</p>
+      {% endif %}
+    </div>
+
+    <!-- Job Title -->
+    <p class="mt-4"><i class="fas fa-briefcase"></i> Position for: {{ job.title }}</p>
+
+  </div>
+</div>
+<!-- Back to Job Button -->
+<a href="{% url 'job_detail' job.id %}" class="btn btn-gradient mt-4">
+  <i class="fas fa-arrow-left me-2"></i> Back to Job
+</a>
+<!-- Styles -->
+<style>
+  body {
+    background: linear-gradient(135deg, #dde6e0, #ffffff);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+
+  .contact-card {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(12px);
+    padding: 40px 30px;
+    max-width: 400px;
+    color: #360fab;
+    transition: transform 0.3s, box-shadow 0.3s;
+  }
+
+  .contact-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+  }
+
+  .contact-card a {
+    color: #0d6efd;
+    text-decoration: none;
+  }
+
+  .contact-card a:hover {
+    text-decoration: underline;
+  }
+
+  .contact-card i {
+    color: #0d6efd;
+    margin-right: 8px;
+  }
+
+  .text-start p {
+    margin-bottom: 0.75rem;
+  }
+.btn-gradient {
+    background: linear-gradient(90deg, #4b6cb7, #182848);
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 800;
+    transition: all 0.3s ease;
+}
+
+.btn-gradient:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+    text-decoration: none;
+}
+
+</style>
+
+<!-- FontAwesome -->
+<script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+
+{% endblock %}
