@@ -1,0 +1,123 @@
+{% load static %}
+{% block body %}
+{% include 'recruiter_navigation.html' %}
+
+<style>
+  body {
+    background-color: #f0f8ff;
+  }
+  label {
+    font-weight: bold;
+    font-size: 16px;
+    margin-top: 10px;
+  }
+  input, textarea, select {
+    font-size: 16px;
+    padding: 8px;
+    border-radius: 6px;
+    border: 1px solid #ced4da;
+  }
+  input:focus, textarea:focus, select:focus {
+    outline: none;
+    border-color: #6f42c1;
+    box-shadow: 0 0 5px rgba(111, 66, 193, 0.5);
+  }
+  h2 {
+    font-family: 'Monotype Corsiva';
+    font-size: 32px;
+    color: #6f42c1;
+    margin-bottom: 25px;
+  }
+  .btn-primary {
+    background-color: #6f42c1;
+    border-color: #6f42c1;
+    font-weight: bold;
+    border-radius: 8px;
+  }
+  .btn-primary:hover {
+    background-color: #5a358a;
+    border-color: #5a358a;
+  }
+  .form-control {
+    margin-bottom: 15px;
+  }
+  textarea.form-control {
+    resize: vertical;
+  }
+  .container {
+    max-width: 800px;
+  }
+</style>
+
+<div class="container mt-5">
+  <h2>Add New Job</h2>
+  <form method="POST" enctype="multipart/form-data" onsubmit="this.querySelector('button[type=submit]').disabled = true;">
+    {% csrf_token %}
+
+    <label>Job Title</label>
+    <input type="text" name="title" class="form-control" required>
+
+    <label>Company</label>
+    <input type="text" name="company" class="form-control" required>
+
+    <label>Company Logo</label>
+    <input type="file" name="logo" class="form-control">
+
+    <div class="form-row">
+      <div class="form-group col-md-6">
+        <label>Start Date</label>
+        <input type="date" name="start_date" class="form-control" required>
+      </div>
+      <div class="form-group col-md-6">
+        <label>End Date</label>
+        <input type="date" name="end_date" class="form-control" required>
+      </div>
+    </div>
+
+    <label>Salary</label>
+    <input type="number" step="0.01" name="salary" class="form-control" required>
+
+    <label>Description</label>
+    <textarea name="description" class="form-control" rows="4" required></textarea>
+
+    <label>Experience</label>
+    <input type="text" name="experience" class="form-control" required>
+
+    <label>Location</label>
+    <input type="text" name="location" class="form-control" required>
+
+    <label>Skills</label>
+    <input type="text" name="skills" class="form-control">
+
+    <div class="form-row">
+      <div class="form-group col-md-6">
+        <label>Job Type</label>
+        <select name="job_type" class="form-control" required>
+          <option value="Full Time">Full Time</option>
+          <option value="Part Time">Part Time</option>
+          <option value="Internship">Internship</option>
+        </select>
+      </div>
+      <div class="form-group col-md-6">
+        <label>Work Mode</label>
+        <select name="work_mode" class="form-control" required>
+          <option value="Online">Online</option>
+          <option value="Offline">Offline</option>
+        </select>
+      </div>
+    </div>
+
+    <button type="submit" class="btn btn-primary mt-3 btn-block">Add Job</button>
+  </form>
+</div>
+
+{% if message %}
+<script>
+    alert("{{ message|escapejs }}");
+    if ("{{ message }}" === "Job added successfully!") {
+        window.location.href = "{% url 'job_list' %}";
+    }
+</script>
+{% endif %}
+
+{% endblock %}

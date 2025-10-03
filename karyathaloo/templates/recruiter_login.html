@@ -1,0 +1,56 @@
+{% load static %}
+
+{% block body %}
+
+{% include 'navigation.html' %}
+<style>
+    label{
+        font-size: 20px;
+    }
+</style>
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-lg p-4" style="border-radius: 15px; background-color: #f8f9fa;">
+                <h2 class="text-center mb-4" style="font-family: 'Monotype Corsiva'; font-size: 40px; color: #4a148c;">
+                    Recruiter Login
+                </h2>
+
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="form-group">
+                        <label for="uname"><b>Email ID</b></label>
+                        <input type="text" class="form-control" id="uname" name="uname" placeholder="Enter Email ID" required style="font-size: 19px; padding: 10px;">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="pwd"><b>Password</b></label>
+                        <input type="password" class="form-control" id="pwd" name="pwd" placeholder="Enter password" required style="font-size: 19px; padding: 10px;">
+                    </div>
+
+                    <div class="d-flex justify-content-between mt-4">
+                        <input type="submit" class="btn btn-dark btn-lg" value="Login" style="flex: 0 0 48%;">
+                        <a href="{% url 'recruiter_signup' %}" class="btn btn-primary btn-lg" style="flex: 0 0 48%;">Create Account</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% include 'footer.html' %}
+
+{% if error %}
+<script>
+    var errorMsg = "{{ error|escapejs }}";
+    alert(errorMsg);
+
+    // Redirect if login was successful
+    if (errorMsg === "Your account has been approved and logged in successfully.") {
+        window.location.href = "{% url 'recruiter_home' %}";
+    }
+</script>
+{% endif %}
+
+{% endblock %}

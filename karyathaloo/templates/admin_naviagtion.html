@@ -1,0 +1,153 @@
+{% load static %}
+<html>
+<head>
+    <title>Job Portal Admin</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap & FontAwesome -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #e3f2fd; /* soft light blue */
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Header container */
+        .header-row {
+            text-align: center;
+            background: linear-gradient(90deg, #022b55, #05457a);
+            padding: 30px 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .header-logo img {
+            width: 160px;
+            height: auto;
+            border-radius: 10px;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+            margin-bottom: 15px;
+        }
+
+        .header-title {
+            font-weight: bold;
+            font-size: 28px;
+            color: #fff; /* white text */
+            margin-bottom: 15px;
+        }
+
+        .social-icons i {
+            font-size: 26px;
+            color: #fff;
+            margin: 0 10px;
+            transition: color 0.3s, transform 0.2s;
+        }
+
+        .social-icons i:hover {
+            color: #ffeb3b;
+            transform: scale(1.2);
+        }
+
+        /* Navbar styling */
+        .navbar {
+            background: linear-gradient(120deg, #1e3c72, #4a69bd);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            padding: 0.5rem 1rem;
+            margin-bottom: 20px;
+        }
+
+        .navbar-brand {
+            color: #fff !important;
+            font-family: 'Monotype Corsiva';
+            font-size: 32px;
+        }
+
+        .nav-link {
+            color: #f8f8f8 !important;
+            margin-right: 10px;
+            padding: 6px 12px;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+
+        .nav-link:hover {
+            background-color: rgba(255,255,255,0.25);
+            color: #fff !important;
+            font-weight: bold;
+        }
+
+        .dropdown-menu {
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        @media(max-width: 768px){
+            .header-title {
+                font-size: 24px;
+            }
+            .social-icons i {
+                font-size: 22px;
+                margin: 0 6px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header: Logo → Title → Social icons -->
+    <div class="header-row">
+        <div class="header-logo">
+            <img src="{% static 'images/karya.jpg' %}" alt="Logo">
+        </div>
+        <div class="header-title">
+            Online and Offline Job Portal System
+        </div>
+        <div class="social-icons">
+            <i class="fab fa-instagram"></i>
+            <i class="fab fa-twitter"></i>
+            <i class="fab fa-facebook"></i>
+            <i class="fab fa-linkedin"></i>
+        </div>
+    </div>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-sm navbar-dark">
+        <a class="navbar-brand pl-3 font-weight-bold">Karyathalo</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#adminNavbar" aria-controls="adminNavbar" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="adminNavbar">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item"><a class="nav-link" href="{% url 'admin_home' %}"><i class="fa fa-home mr-1"></i> Home</a></li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="recruiterDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fa fa-user-o mr-1"></i> Recruiter Request
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="recruiterDropdown">
+                        <a class="dropdown-item" href="{% url 'recruiter_pending' %}">Pending</a>
+                        <a class="dropdown-item" href="{% url 'recruiter_accept' %}">Accepted</a>
+                        <a class="dropdown-item" href="{% url 'recruiter_reject' %}">Rejected</a>
+                        <a class="dropdown-item" href="{% url 'recruiter_all' %}">All Recruiter</a>
+                    </div>
+                </li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'view_user' %}"><i class="fa fa-user-o mr-1"></i> View USER</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'change_passwordadmin' %}"><i class="fa fa-user-circle mr-1"></i> Change Password</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'Logout' %}"><i class="fa fa-sign-out mr-1"></i> Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.min.js"></script>
+
+</body>
+</html>

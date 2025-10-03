@@ -1,0 +1,77 @@
+{% load static %}
+{% block body %}
+{% include 'recruiter_navigation.html' %}
+
+<style>
+  label {
+    font-weight: bold;
+    font-size: 20px;
+  }
+</style>
+<style>
+  body {
+    background-color: #f0f8ff; /* Light blue background for entire page */
+  }
+</style>
+
+
+<div class="container mt-5">
+  <h2>Edit Job: {{ job.title }}</h2>
+  <form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <label>Job Title</label>
+    <input type="text" name="title" class="form-control" value="{{ job.title }}" required>
+
+    <label>Company</label>
+    <input type="text" name="company" class="form-control" value="{{ job.recruiter.company }}" required>
+
+    <label>Current Logo</label><br>
+    {% if job.logo %}
+      <img src="{{ job.logo.url }}" width="100"><br>
+    {% endif %}
+    <input type="file" name="logo" class="form-control mt-2">
+
+    <label>Start Date</label><span style="color:rgb(184, 8, 155)">[{{job.start_date}}]</span>
+    <input type="date" name="start_date" class="form-control">
+   
+    <label>End Date</label> <span style="color:rgb(184, 8, 155)">[{{job.end_date}}]</span>
+    <input type="date" name="end_date" class="form-control">
+
+    <label>Salary</label>
+    <input type="number" step="0.01" name="salary" class="form-control" value="{{ job.salary }}" required>
+
+    <label>Description</label>
+    <textarea name="description" class="form-control" required>{{ job.description }}</textarea>
+
+    <label>Experience</label>
+    <input type="text" name="experience" class="form-control" value="{{ job.experience }}" required>
+
+    <label>Location</label>
+    <input type="text" name="location" class="form-control" value="{{ job.location }}" required>
+
+    <label>Skills</label>
+    <input type="text" name="skills" class="form-control" value="{{ job.skills }}">
+
+    <label>Job Type</label>
+    <select name="job_type" class="form-control" required>
+      <option value="Full Time" {% if job.job_type == "Full Time" %}selected{% endif %}>Full Time</option>
+      <option value="Part Time" {% if job.job_type == "Part Time" %}selected{% endif %}>Part Time</option>
+      <option value="Internship" {% if job.job_type == "Internship" %}selected{% endif %}>Internship</option>
+    </select>
+
+    <label>Work Mode</label>
+    <select name="work_mode" class="form-control" required>
+      <option value="Online" {% if job.work_mode == "Online" %}selected{% endif %}>Online</option>
+      <option value="Offline" {% if job.work_mode == "Offline" %}selected{% endif %}>Offline</option>
+    </select>
+
+    <button type="submit" class="btn btn-success mt-3">Update Job</button>
+  </form>
+</div>
+
+{% if error %}
+    <p style="color:red;">{{ error }}</p>
+{% endif %}
+
+{% endblock %}

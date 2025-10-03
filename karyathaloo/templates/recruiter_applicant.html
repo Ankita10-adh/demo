@@ -1,0 +1,52 @@
+{% load static %}
+{% include 'recruiter_navigation.html' %}
+
+<h2>Applicants for {{ job.title }}</h2>
+<table class="table table-bordered mt-3">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Applicant Name</th>
+            <th>Email</th>
+            <th>Resume</th>
+            <th>Status</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for applicant in applicants %}
+        <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>{{ applicant.student.user.first_name }} {{ applicant.student.user.last_name }}</td>
+            <td>{{ applicant.student.user.username }}</td>
+            <td>
+                {% if applicant.resume %}
+                    <a href="{{ applicant.resume.url }}" target="_blank">View Resume</a>
+                {% else %}
+                    Not uploaded
+                {% endif %}
+            </td>
+            <td>{{ applicant.status }}</td>
+            <td>
+                {% if applicant.status == "Pending" %}
+                <form method="post" style="display:inline;">
+                    {% csrf_token %}
+                    <input type="hidden" name="apply_id" value="{{ applicant.id }}">
+                    <button name="action" value="accept" class="btn btn-success btn-sm">Accept</button>
+                    <button name="action" value="reject" class="btn btn-danger btn-sm">Reject</button>
+                </form>
+                {% else %}
+                    {{ applicant.status }}
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% if message %}
+<script>
+    alert("{{ message|escapejs }}");
+    window.location.reload();  // Refresh page to update statuses
+</script>
+{% endif %}

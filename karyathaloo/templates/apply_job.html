@@ -1,0 +1,30 @@
+{% load static %}
+{% block body %}
+{% include 'user_navigation.html' %}
+
+<div class="container mt-5">
+  <h2>Apply for {{ job.title }} at {{ job.company_name }}</h2>
+
+  <!-- Show error/success messages -->
+  {% if error %}
+    <div class="alert 
+         {% if error == 'Applied Successfully!' %} alert-success
+         {% elif error == 'Application form close' %} alert-danger
+         {% elif error == 'Form Not Open' %} alert-warning
+         {% else %} alert-info {% endif %} mt-3">
+      {{ error }}
+    </div>
+  {% endif %}
+
+  <!-- Resume Upload Form -->
+  <form method="POST" enctype="multipart/form-data" class="mt-4">
+    {% csrf_token %}
+    <div class="form-group">
+      <label class="font-weight-bold">Upload Resume</label>
+      <input type="file" name="resume" class="form-control" required>
+    </div>
+    <button type="submit" class="btn btn-success mt-3">Submit Application</button>
+  </form>
+</div>
+
+{% endblock %}

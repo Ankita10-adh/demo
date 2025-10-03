@@ -1,0 +1,55 @@
+{% load static %}
+
+{% block body %}
+
+{% include 'navigation.html' %}
+
+<!-- Modern Hero / Page Title -->
+<div class="text-center my-5">
+    <h2 class="display-4" style="font-family: 'Monotype Corsiva'; color: #4d691b; font-weight:bold;">
+        User Login
+    </h2>
+    <hr style="width:120px; border-top:4px solid #4d691b;">
+</div>
+
+<!-- Centered Login Card -->
+<div class="d-flex justify-content-center mb-5">
+    <div class="card shadow-lg p-5" style="width: 100%; max-width: 450px; border-radius: 15px;">
+        <form method="post">
+            {% csrf_token %}
+
+            <div class="form-group mb-4">
+                <label for="email" class="font-weight-bold" style="font-size:1.2rem;">Email ID</label>
+                <input type="email" class="form-control" id="email" name="uname" placeholder="Enter your Email ID" style="font-size:1.1rem;" required>
+            </div>
+
+            <div class="form-group mb-4">
+                <label for="password" class="font-weight-bold" style="font-size:1.2rem;">Password</label>
+                <input type="password" class="form-control" id="password" name="pwd" placeholder="Enter your password" style="font-size:1.1rem;" required>
+            </div>
+
+            <div class="d-flex justify-content-between">
+                <input type="submit" value="Login" class="btn btn-dark btn-block" style="font-size:1.2rem; padding: 10px 0;">
+                <a href="{% url 'user_signup' %}" class="btn btn-outline-dark btn-block" style="font-size:1.2rem; padding: 10px 0;">Create Account</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% include 'footer.html' %}
+
+<!-- Alerts -->
+{% if error == "No" %}
+<script>
+    alert("Login Successful!!");
+    window.location = "{% url 'user_home' %}";
+</script>
+{% endif %}
+
+{% if error == "yes" %}
+<script>
+    alert("Invalid login credential, Try Again!!");
+</script>
+{% endif %}
+
+{% endblock %}

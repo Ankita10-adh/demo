@@ -1,0 +1,104 @@
+{% load static %}
+
+{% block body %}
+{% include 'navigation.html' %}
+
+<style>
+body {
+    background: linear-gradient(to bottom, #f0f8ff, #e0f7fa); /* Subtle gradient */
+    font-family: 'Segoe UI', sans-serif;
+}
+
+.marquee-title {
+    font-family: 'Monotype Corsiva';
+    font-size: 28px;
+    font-weight: bold;
+    color: #364434;
+    background-color: #cb9279;
+    padding: 10px 0;
+    text-align: center;
+    border-radius: 8px;
+}
+
+.table thead th {
+    background-color: #4a148c;
+    color: #fff;
+    font-size: 16px;
+    text-align: center;
+}
+
+.table tbody td {
+    font-size: 15px;
+    vertical-align: middle;
+    text-align: center;
+}
+
+.table-hover tbody tr:hover {
+    background-color: #d1c4e9;
+    transition: all 0.3s;
+}
+
+.btn-apply {
+    background-color: #4a148c;
+    color: #fff;
+    font-size: 14px;
+    padding: 5px 10px;
+    border-radius: 5px;
+    transition: all 0.3s;
+}
+
+.btn-apply:hover {
+    background-color: #7b1fa2;
+    transform: scale(1.05);
+    color: #fff;
+}
+</style>
+
+<marquee class="marquee-title">
+    Latest Jobs</marquee>
+<hr>
+
+<div class="container mt-5">
+    <div class="card shadow-sm p-3" style="border-radius: 12px; background-color: #fff;">
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>S.No.</th>
+                        <th>Company</th>
+                        <th>Job Title</th>
+                        <th>Job Type</th>
+                        <th>Work Mode</th>
+                        <th>Location</th>
+                        <th>Start Date</th>
+                        <th>End Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for job in jobs %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ job.recruiter.company }}</td>
+                        <td>{{ job.title }}</td>
+                        <td>{{ job.job_type }}</td>
+                        <td>{{ job.work_mode }}</td>
+                        <td>{{ job.location }}</td>
+                        <td>{{ job.start_date }}</td>
+                        <td>{{ job.end_date }}</td>
+                        <td>
+                            <a href="{% url 'user_login' %}" class="btn btn-apply btn-sm">Login To Apply</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="9" class="text-center">No jobs found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% include 'footer.html' %}
+{% endblock %}

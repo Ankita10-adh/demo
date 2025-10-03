@@ -1,0 +1,118 @@
+{% load static %}
+<html>
+<head>
+    <title>Job Portal - Karyathalo</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap & FontAwesome -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #f0f4f8;
+        }
+
+        /* Header */
+        .header-container {
+            padding: 20px 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: linear-gradient(90deg, #6a11cb, #2575fc);
+            color: #fff;
+        }
+        .header-logo img {
+            width: 150px;
+            height: auto;
+            border-radius: 8px;
+        }
+        .header-title {
+            font-size: 28px;
+            font-weight: bold;
+            text-align: center;
+        }
+        .header-title span:first-child { color: #ffe600; }
+        .header-title span:last-child { color: #ff4b2b; }
+
+        .social-icons i {
+            font-size: 22px;
+            margin-left: 12px;
+            transition: transform 0.3s, color 0.3s;
+        }
+        .social-icons i:hover {
+            color: #ffd700;
+            transform: scale(1.2);
+        }
+
+        /* Navbar */
+        .navbar {
+            background-color: #9c27b0;
+            padding: 10px 0;
+        }
+        .navbar-brand {
+            font-family: 'Monotype Corsiva';
+            font-size: 28px;
+            font-weight: bold;
+            color: #fff !important;
+        }
+        .nav-link {
+            color: #fff !important;
+            font-size: 18px;
+            margin-right: 15px;
+            transition: all 0.3s ease;
+        }
+        .nav-link:hover {
+            background-color: #7b1fa2;
+            border-radius: 8px;
+            transform: scale(1.05);
+        }
+        .user-name {
+            font-family: 'Monotype Corsiva';
+            font-size: 20px;
+            font-weight: bold;
+            color: #fff;
+            margin-left: auto;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header Section -->
+    <div class="header-container container-fluid">
+        <div class="header-logo">
+            <img src="{% static 'images/karya.jpg' %}" alt="Karyathalo Logo">
+        </div>
+        <div class="header-title">
+            <span>Online and Offline Job</span> <span>Portal System</span>
+        </div>
+        <div class="social-icons">
+            <a href="#"><i class="fab fa-instagram"></i></a>
+            <a href="#"><i class="fab fa-twitter"></i></a>
+            <a href="#"><i class="fab fa-facebook"></i></a>
+            <a href="#"><i class="fab fa-linkedin"></i></a>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg">
+        <a class="navbar-brand pl-4" href="#">Karyathalo</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto align-items-center">
+                <li class="nav-item"><a class="nav-link" href="{% url 'user_home' %}"><i class="fa fa-home mr-1"></i> Home</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'user_latestjobs' %}"><i class="fa fa-briefcase mr-1"></i> Jobs List</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'change_passworduser' %}"><i class="fa fa-user-circle mr-1"></i> Change Password</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'Logout' %}"><i class="fa fa-sign-out-alt mr-1"></i> Logout</a></li>
+            </ul>
+            <span class="user-name">{{request.user.first_name}} {{request.user.last_name}}</span>
+        </div>
+    </nav>
+
+</body>
+</html>

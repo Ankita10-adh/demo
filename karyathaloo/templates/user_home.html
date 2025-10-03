@@ -1,0 +1,81 @@
+{% load static %}
+
+{% block body %}
+
+{% include 'user_navigation.html' %}
+
+<!-- Page Banner / Title -->
+<div class="text-center py-5" style="background: linear-gradient(90deg, #004e92, #000428); color: #fff;">
+    <h2 class="display-3" style="font-family: 'Monotype Corsiva'; font-weight:bold;">Profile</h2>
+</div>
+
+<!-- Main Content -->
+<div class="container-fluid" style="background-color: #f0f4f8; padding:60px 20px;">
+    <div class="row justify-content-center">
+        <!-- Profile Form -->
+        <div class="col-lg-6 col-md-8 mb-5">
+            <form class="p-4" style="background-color: #ffffff; border-radius:15px; box-shadow: 0 8px 20px rgba(0,0,0,0.1);" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <div class="form-row mb-3">
+                    <div class="form-group col-md-6">
+                        <label class="font-weight-bold" style="font-size:1.2rem;">First Name</label>
+                        <input type="text" class="form-control" name="fname" value="{{juser.user.first_name}}" style="font-size:1.1rem; padding:10px;">
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label class="font-weight-bold" style="font-size:1.2rem;">Last Name</label>
+                        <input type="text" class="form-control" name="lname" value="{{juser.user.last_name}}" style="font-size:1.1rem; padding:10px;">
+                    </div>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label class="font-weight-bold" style="font-size:1.2rem;">Contact Number</label>
+                    <input type="text" class="form-control" name="contact" value="{{juser.mobile}}" style="font-size:1.1rem; padding:10px;">
+                </div>
+
+                <div class="form-group mb-3">
+                    <label class="font-weight-bold" style="font-size:1.2rem;">Email Address</label>
+                    <input type="email" class="form-control" name="email" value="{{juser.user.username}}" readonly style="font-size:1.1rem; padding:10px; background-color:#e9ecef;">
+                </div>
+
+                <div class="form-row mb-3">
+                    <div class="form-group col-md-6">
+                        <label class="font-weight-bold" style="font-size:1.2rem;">Gender</label>
+                        <div class="border p-2 rounded" style="font-size:1.1rem;">
+                            <input type="radio" name="gender" value="male" {% if juser.gender == "male" %}checked{% endif %}> Male
+                            <input type="radio" name="gender" value="female" {% if juser.gender == "female" %}checked{% endif %}> Female
+                            <input type="radio" name="gender" value="other" {% if juser.gender == "other" %}checked{% endif %}> Other
+                        </div>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label class="font-weight-bold" style="font-size:1.2rem;">Profile Image</label>
+                        <input type="file" class="form-control" name="image" accept="image/*" style="padding:8px;">
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-dark btn-block" style="font-size:1.2rem; padding:10px;">Update Profile</button>
+            </form>
+        </div>
+
+        <!-- Profile Image -->
+        <div class="col-lg-4 col-md-6 text-center">
+            <img src="{{juser.image.url}}" class="img-fluid rounded shadow" style="max-height:450px;" alt="User Image">
+        </div>
+    </div>
+</div>
+
+{% include 'footer.html' %}
+
+<!-- Alerts -->
+{% if error == "No" %}
+<script>
+    alert("Profile Updated Successfully!");
+    window.location = "{% url 'user_home' %}";
+</script>
+{% elif error == "yes" %}
+<script>
+    alert("Unable to update! Please try again.");
+</script>
+{% endif %}
+
+{% endblock %}

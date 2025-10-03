@@ -1,0 +1,76 @@
+{% load static %}
+{% block body %}
+{% include 'recruiter_navigation.html' %}
+
+<div class="container mt-5">
+    <h2>Applied Candidates for Your Jobs</h2>
+
+    <table class="table table-bordered table-striped mt-3">
+        <thead class="thead-dark">
+            <tr>
+                <th>S.No</th>
+                <th>Applicant Name</th>
+                <th>Email</th>
+                <th>Mobile</th>
+                <th>Job Title</th>
+                <th>Resume</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for app in applications %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+
+                <!-- Applicant Details -->
+                <td>{{ app.student.user.first_name }} {{ app.student.user.last_name }}</td>
+                <td>{{ app.student.user.username }}</td>
+                <td>{{ app.student.mobile }}</td>
+
+                <!-- Job Details -->
+                <td>{{ app.job.title }}</td>
+
+                <!-- Resume -->
+                <td>
+                    {% if app.resume %}
+                        <a href="{{ app.resume.url }}" target="_blank" class="btn btn-info btn-sm">View Resume</a>
+                    {% else %}
+                        <span class="text-muted">Not Uploaded</span>
+                    {% endif %}
+                </td>
+
+                <!-- Status -->
+                <td>
+                    <span class="badge 
+                        {% if app.status == 'Accepted' %} badge-success
+                        {% elif app.status == 'Rejected' %} badge-danger
+                        {% else %} badge-warning {% endif %}">
+                        {{ app.status|default:"Pending" }}
+                    </span>
+                </td>
+
+                <!-- Recruiter Action -->
+                <td>
+                    {% if app.status == "Pending" %}
+                    <form method="post" style="display:inline;">
+                        {% csrf_token %}
+                        <input type="hidden" name="application_id" value="{{ app.id }}">
+                        <button type="submit" name="status" value="Accepted" class="btn btn-success btn-sm">Accept</button>
+                        <button type="submit" name="status" value="Rejected" class="btn btn-danger btn-sm">Reject</button>
+                    </form>
+                    {% else %}
+                        {{ app.status }}
+                    {% endif %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="8" class="text-center text-muted">No candidates have applied yet.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}

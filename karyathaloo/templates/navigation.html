@@ -1,0 +1,105 @@
+{% load static %}
+<html>
+<head>
+    <title>Karyathalo - Job Portal</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap & FontAwesome -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+<style>
+    body {
+        font-family: 'Segoe UI', sans-serif;
+        background: #80acd7;
+        margin: 0;
+        padding: 0;
+    }
+
+    /* Compact Header */
+    .header {
+        background: linear-gradient(90deg, #004e92, #000428);
+        color: white;
+        padding: 25px 0;   /* Slightly taller */
+        text-align: center;
+    }
+    .header img {
+        width: 140px;  /* Slightly larger logo */
+        height: auto;
+        border-radius: 10px;
+    }
+    .header-title {
+        font-size: 28px;   /* Larger text */
+        font-weight: bold;
+        margin-top: 10px;
+    }
+    .header-title span:nth-child(1) { color: #ffd700; }   /* Gold */
+    .header-title span:nth-child(2) { color: #00bfff; }   /* Deep Sky Blue */
+
+    /* Navbar */
+    .navbar {
+        background: linear-gradient(90deg, #c31432, #240b36);
+        padding: 12px 0;
+    }
+    .navbar-brand {
+        font-family: 'Monotype Corsiva';
+        font-size: 28px;   /* Increased size */
+        font-weight: bold;
+        color: #fff !important;
+    }
+    .nav-link {
+        color: #ffeb3b !important;  /* Brighter yellow for links */
+        margin-right: 22px;
+        font-size: 18px;  /* Slightly larger */
+        transition: all 0.3s ease-in-out;
+    }
+    .nav-link:hover {
+        color: #ffd54f !important;
+        transform: scale(1.1);  /* Slightly bigger on hover */
+    }
+
+    /* Social Icons */
+    .social-icons i {
+        font-size: 20px;   /* Slightly bigger */
+        margin: 0 10px;
+        color: #ffeb3b;    /* Bright yellow */
+        transition: all 0.3s;
+    }
+    .social-icons i:hover {
+        color: #ffd54f;    /* Hover color */
+        transform: scale(1.3);  /* Slightly bigger on hover */
+    }
+</style>
+
+</head>
+<body>
+
+    <!-- Header Section -->
+    <div class="header">
+        <img src="{% static 'images/karya.jpg' %}" alt="Karyathalo Logo">
+        <div class="header-title">
+            <span>Online & Offline Job</span> <span>Portal System</span>
+        </div>
+        <div class="social-icons mt-2">
+            <a href="#"><i class="fab fa-instagram"></i></a>
+            <a href="#"><i class="fab fa-twitter"></i></a>
+            <a href="#"><i class="fab fa-facebook"></i></a>
+            <a href="#"><i class="fab fa-linkedin"></i></a>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-sm">
+        <a class="navbar-brand pl-4" href="#">Karyathalo</a>
+        <ul class="navbar-nav ml-auto pr-4">
+            <li class="nav-item"><a class="nav-link" href="{% url 'index' %}"><i class="fa fa-home mr-1"></i> Home</a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'latest_jobs' %}"><i class="fa fa-briefcase mr-1"></i> Latest Jobs</a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'user_login' %}"><i class="fa fa-user mr-1"></i> User Login</a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'admin_login' %}"><i class="fa fa-user-shield mr-1"></i> Admin Login</a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'recruiter_login' %}"><i class="fa fa-users mr-1"></i> Recruiter Login</a></li>
+            <li class="nav-item"><a class="nav-link" href="#"><i class="fa fa-envelope mr-1"></i> Contact</a></li>
+        </ul>
+    </nav>
+
+</body>
+</html>

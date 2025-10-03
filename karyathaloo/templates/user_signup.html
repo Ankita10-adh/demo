@@ -1,0 +1,108 @@
+{% load static %}
+
+{% block body %}
+{% include 'navigation.html' %}
+
+<script>
+function checkpass() {
+    if(document.signup.pwd.value != document.signup.cpwd.value) {
+        alert('Password and Confirm Password do not match!');
+        document.signup.cpwd.focus();
+        return false;
+    }
+    return true;
+}
+</script>
+<style>
+    label{
+        font-size: 18px;
+        font-style: bold;
+    }
+</style>
+
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-lg p-4" style="border-radius: 15px; background-color: #f8f9fa;">
+                <h2 class="text-center mb-4" style="font-family: 'Monotype Corsiva'; font-size: 38px; color: #4a148c;">
+                    User Signup
+                </h2>
+
+                <form name="signup" onsubmit="return checkpass();" method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label>First Name</label>
+                            <input type="text" class="form-control" name="fname" placeholder="Enter first name" required style="font-size: 18px; padding: 10px;">
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label>Last Name</label>
+                            <input type="text" class="form-control" name="lname" placeholder="Enter last name" required style="font-size: 18px; padding: 10px;">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Contact Number</label>
+                        <input type="text" class="form-control" name="contact" placeholder="Enter contact number" required style="font-size: 18px; padding: 10px;">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Email Address</label>
+                        <input type="email" class="form-control" name="email" placeholder="Enter email address" required style="font-size: 18px; padding: 10px;">
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label>Password</label>
+                            <input type="password" class="form-control" name="pwd" placeholder="Enter Password" required style="font-size: 18px; padding: 10px;">
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label>Confirm Password</label>
+                            <input type="password" class="form-control" name="cpwd" placeholder="Confirm Password" required style="font-size: 18px; padding: 10px;">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label>Gender</label>
+                            <div class="d-flex justify-content-start align-items-center" style="border:1px solid lightgrey; padding:10px; border-radius:5px; font-size: 18px;">
+                                <div class="mr-3">
+                                    <input type="radio" id="male" name="gender" value="male">
+                                    <label for="male">Male</label>
+                                </div>
+                                <div class="mr-3">
+                                    <input type="radio" id="female" name="gender" value="female">
+                                    <label for="female">Female</label>
+                                </div>
+                                <div>
+                                    <input type="radio" id="other" name="gender" value="other">
+                                    <label for="other">Other</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label>Profile Image</label>
+                            <input type="file" class="form-control" name="image" style="font-size: 16px; padding: 6px;">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-success btn-lg btn-block mt-3">Sign Up</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if error == "No" %}
+<script>
+    alert("Signup Successful!");
+    window.location = "{% url 'user_login' %}";
+</script>
+{% elif error == "yes" %}
+<script>
+    alert("Something went wrong! Please try again.");
+</script>
+{% endif %}
+
+{% endblock %}

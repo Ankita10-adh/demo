@@ -1,0 +1,102 @@
+{% load static %}
+
+{% block body %}
+
+{% include 'recruiter_navigation.html' %}
+<style>
+
+</style>
+<div class="container my-5">
+    <div class="row justify-content-center align-items-start">
+        <!-- Profile Form -->
+        <div class="col-lg-7 mb-4">
+            <div class="card shadow-lg p-4" style="border-radius: 15px; background-color: #fefefe;">
+                <h2 class="text-center mb-4" style="font-family: 'Monotype Corsiva'; font-size: 32px; color: #6a1b9a;">
+                    Recruiter Profile
+                </h2>
+
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label>First Name</label>
+                            <input type="text" class="form-control form-control-lg" name="fname" value="{{recruiter.user.first_name}}">
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label>Last Name</label>
+                            <input type="text" class="form-control form-control-lg" name="lname" value="{{recruiter.user.last_name}}">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label>Contact Number</label>
+                            <input type="text" class="form-control form-control-lg" name="contact" value="{{recruiter.mobile}}">
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label>Company Name</label>
+                            <input type="text" class="form-control form-control-lg" name="company" value="{{recruiter.company}}" readonly style="background-color: #e9ecef;">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Email Address</label>
+                        <input type="email" class="form-control form-control-lg" name="email" value="{{recruiter.user.username}}" readonly style="background-color: #e9ecef;">
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label>Gender</label>
+                            <div class="border p-2 rounded" style="font-size: 16px;">
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="gender" value="male" {% if recruiter.gender == "male" %}checked{% endif %}>
+                                    <label class="form-check-label">Male</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="gender" value="female" {% if recruiter.gender == "female" %}checked{% endif %}>
+                                    <label class="form-check-label">Female</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="gender" value="other" {% if recruiter.gender == "other" %}checked{% endif %}>
+                                    <label class="form-check-label">Other</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group col-md-6">
+                            <label>Profile Image</label>
+                            <input type="file" class="form-control-file mt-2" name="image">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-gradient btn-success btn-lg btn-block mt-3" style="border-radius: 10px;">
+                        Update Profile
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Profile Image -->
+        <div class="col-lg-4 text-center">
+            <div class="card shadow-sm p-3" style="border-radius: 15px; background-color: #fdfdfd;">
+                <img src="{{recruiter.image.url}}" class="img-fluid rounded shadow" alt="Recruiter Image" style="max-height: 350px;">
+            </div>
+        </div>
+    </div>
+</div>
+
+{% include 'footer.html' %}
+
+{% if error == "No" %}
+<script>
+    alert("Profile updated successfully!");
+    window.location = "{% url 'recruiter_home' %}";
+</script>
+{% elif error == "yes" %}
+<script>
+    alert("Unable to update! Please try again.");
+</script>
+{% endif %}
+
+{% endblock %}

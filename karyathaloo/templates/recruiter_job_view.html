@@ -1,0 +1,42 @@
+{% load static %}
+
+{% block body %}
+{% include 'recruiter_navigation.html' %}
+
+<style>
+  body { background-color: #f0f8ff; }
+  .job-card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    margin-top: 30px;
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .job-card h2 { 
+    color: #007bff; 
+    font-weight: bold; 
+    margin-bottom: 20px;
+    text-align: center;
+  }
+  .job-detail { margin-bottom: 12px; }
+  .job-detail strong { color: #333; }
+</style>
+
+<div class="container">
+    <div class="job-card">
+        <h2>{{ job.title }}</h2>
+        <div class="job-detail"><strong>Company:</strong> {{ job.recruiter.company }}</div>
+        <div class="job-detail"><strong>Job Type:</strong> {{ job.job_type }}</div>
+        <div class="job-detail"><strong>Work Mode:</strong> {{ job.work_mode }}</div>
+        <div class="job-detail"><strong>Location:</strong> {{ job.location }}</div>
+        <div class="job-detail"><strong>Salary:</strong> {{ job.salary }}</div>
+        <div class="job-detail"><strong>Start Date:</strong> {{ job.start_date }}</div>
+        <div class="job-detail"><strong>End Date:</strong> {{ job.end_date }}</div>
+        <div class="job-detail"><strong>Description:</strong> {{ job.description }}</div>
+    </div>
+</div>
+
+{% endblock %}
