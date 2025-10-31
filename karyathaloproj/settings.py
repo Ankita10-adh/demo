@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+import os 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -39,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'karyathaloo',
     'captcha',
+    'payment',
    
 ]
 
@@ -58,7 +60,7 @@ ROOT_URLCONF = 'karyathaloproj.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / "templates"],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -142,3 +144,14 @@ DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 RECAPTCHA_PUBLIC_KEY = 'your_site_key_here'
 RECAPTCHA_PRIVATE_KEY = 'your_secret_key_here'
 NOCAPTCHA = True
+
+
+
+# eSewa RC Sandbox
+ESEWA_MERCHANT_CODE = "EPAYTEST"
+ESEWA_SECRET_KEY = "YOUR_SANDBOX_SECRET_KEY"  # Ask eSewa for this in sandbox
+ESEWA_PAYMENT_URL = "https://rc-epay.esewa.com.np/api/epay/main/v2/form"
+ESEWA_SUCCESS_URL = "http://127.0.0.1:8000/payment/success/"
+ESEWA_FAILURE_URL = "http://127.0.0.1:8000/payment/failed/"
+
+

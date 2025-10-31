@@ -1,8 +1,55 @@
 {% load static %}
 
 {% block body %}
-
 {% include 'admin_naviagtion.html' %}
 
+<div class="container my-5">
+    <div class="row justify-content-center align-items-start">
+        <!-- Profile Form -->
+        <div class="col-lg-7 mb-4">
+            <div class="card shadow-lg p-4" style="border-radius: 15px; background-color: #fefefe;">
+                <h2 class="text-center mb-4" style="font-family: 'Monotype Corsiva'; font-size: 32px; color: #6a1b9a;">
+                    Superuser Profile
+                </h2>
 
+                <form method="post">
+                    {% csrf_token %}
+
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label>Email Address</label>
+                            <input type="email" class="form-control form-control-lg" 
+                                   name="email" value="{{ user.email }}" readonly style="background-color: #e9ecef;">
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label>Username</label>
+                            <input type="text" class="form-control form-control-lg" 
+                                   name="username" value="{{ user.username }}" readonly style="background-color: #e9ecef;">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Last Login</label>
+                        <input type="text" class="form-control form-control-lg" 
+                               value="{{ user.last_login }}" readonly style="background-color: #e9ecef;">
+                    </div>
+
+                    <button type="submit" class="btn btn-gradient btn-success btn-lg btn-block mt-3" style="border-radius: 10px;">
+                        Update Profile
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Profile Image Placeholder -->
+        <div class="col-lg-4 text-center">
+            <div class="card shadow-sm p-3" style="border-radius: 15px; background-color: #fdfdfd;">
+                <img src="{% static 'admin/img/user-icon.png' %}" 
+                     class="img-fluid rounded shadow" alt="Superuser Image" style="max-height: 350px;">
+            </div>
+        </div>
+    </div>
+</div>
+
+{% include 'footer.html' %}
 {% endblock %}

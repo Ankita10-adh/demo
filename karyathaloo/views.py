@@ -121,31 +121,56 @@ def recruiter_login(request):
     return render(request, 'recruiter_login.html', d)
 
 
+from django.shortcuts import render, redirect
+from django.contrib.auth.models import User
+from .models import UserProfile
 
 def user_signup(request):
     error = ""
+    
     if request.method == 'POST':
-        f = request.POST['fname']
-        l = request.POST['lname']
-        i = request.FILES.get('image')  # safer to use get()
-        p = request.POST['pwd']
-        e = request.POST['email']
-        c = request.POST['contact']
-        g = request.POST['gender']
+        fname = request.POST.get('fname', '').strip()
+        lname = request.POST.get('lname', '').strip()
+        email = request.POST.get('email', '').strip()
+        contact = request.POST.get('contact', '').strip()
+        password = request.POST.get('pwd', '')
+        confirm_password = request.POST.get('cpwd', '')
+        gender = request.POST.get('gender', '').strip()
+        image = request.FILES.get('image')  # optional
 
-        try:
-            # 1. Create the User
-            user = User.objects.create_user(username=e, first_name=f, last_name=l, password=p)
-            
-            # 2. Create the UserProfile
-            UserProfile.objects.create(user=user, mobile=c, image=i, gender=g, type="")
-
-            error = "No"  # no error
-        except Exception as ex:
-            print("Signup error:", ex)
-            error = "yes"  # error occurred
+        # 1. Check password match
+        if password != confirm_password:
+            error = "password_mismatch"
+        # 2. Check if email already exists
+        elif User.objects.filter(username=email).exists():
+            error = "email_exists"
+        # 3. Ensure required fields are present
+        elif not gender:
+            error = "gender_missing"
+        else:
+            try:
+                # Create user
+                user = User.objects.create_user(
+                    username=email,
+                    first_name=fname,
+                    last_name=lname,
+                    password=password
+                )
+                # Create profile
+                UserProfile.objects.create(
+                    user=user,
+                    mobile=contact,
+                    image=image,
+                    gender=gender,
+                    type=""
+                )
+                error = "No"  # success
+            except Exception as ex:
+                print("Signup error:", ex)
+                error = "yes"  # generic error
 
     return render(request, 'user_signup.html', {'error': error})
+
 
 
 
@@ -201,50 +226,72 @@ def recruiter_home(request):
     return render(request,'recruiter_home.html')
 
 
+
+
+
 def Logout(request):
     logout(request)
     return redirect('index')
     
+from django.shortcuts import render
+from django.contrib.auth.models import User
+from .models import Recruiter  # Assuming this is your recruiter profile model
+
 def recruiter_signup(request):
     error = ""
+
     if request.method == 'POST':
-        f = request.POST['fname']
-        l = request.POST['lname']
-        i = request.FILES.get('image')
-        p = request.POST['pwd']
-        e = request.POST['email']
-        con = request.POST['company']
-        g = request.POST['gender']
-        c = request.POST['contact']
+        f = request.POST.get('fname', '').strip()
+        l = request.POST.get('lname', '').strip()
+        e = request.POST.get('email', '').strip()
+        p = request.POST.get('pwd', '')
+        cp = request.POST.get('cpwd', '')
+        con = request.POST.get('company', '').strip()
+        g = request.POST.get('gender', '').strip()
+        c = request.POST.get('contact', '').strip()
+        i = request.FILES.get('image')  # optional
 
-        try:
-            # ✅ Create a User first
-            user = User.objects.create_user(
-                first_name=f,
-                last_name=l,
-                username=e,
-                password=p,
-                email=e
-            )
+        # 1️⃣ Check password match
+        if p != cp:
+            error = "password_mismatch"
 
-            # ✅ Then create Recruiter linked to that User
-            Recruiter.objects.create(
-                user=user,
-                mobile=c,
-                image=i,
-                gender=g,
-                company=con,
-                type="recruiter",
-                status="pending"
-            )
+        # 2️⃣ Check if email already exists
+        elif User.objects.filter(username=e).exists():
+            error = "email_exists"
 
-            error = "No"
-        except Exception as e:
-            print("Error in recruiter_signup:", e)  # useful for debugging
-            error = "yes"
+        # 3️⃣ Check if gender selected
+        elif not g:
+            error = "gender_missing"
 
-    d = {'error': error}
-    return render(request, 'recruiter_signup.html', d)
+        else:
+            try:
+                # Create User
+                user = User.objects.create_user(
+                    username=e,
+                    first_name=f,
+                    last_name=l,
+                    password=p,
+                    email=e
+                )
+
+                # Create Recruiter profile
+                Recruiter.objects.create(
+                    user=user,
+                    mobile=c,
+                    image=i,
+                    gender=g,
+                    company=con,
+                    type="recruiter",
+                    status="pending"
+                )
+
+                error = "No"  # success
+            except Exception as ex:
+                print("Error in recruiter_signup:", ex)
+                error = "yes"
+
+    return render(request, 'recruiter_signup.html', {'error': error})
+
 
 
 
@@ -294,18 +341,21 @@ def view_user(request):
 
 
 
+
 def delete_user(request, pid):
     if not request.user.is_authenticated:
         return redirect('admin_login')
-    
-    try:
-        employee = UserProfile.objects.get(id=pid)
-        employee.delete()
-    except UserProfile.DoesNotExist:
-        pass  # Optionally handle error (e.g., show message)
 
-    # ✅ Redirect to the user list page
+    # Get the UserProfile object
+    profile = get_object_or_404(UserProfile, id=pid)
+
+    # Delete the linked User (cascades and removes UserProfile automatically)
+    profile.user.delete()
+
+    # Redirect back to the user list page
     return redirect('view_user')
+
+
 
 
 
@@ -818,7 +868,7 @@ def recruiter_contact(request, job_id):
 
 
 
-"""
+
 from django.http import JsonResponse
 from django.core.mail import send_mail
 from django.conf import settings
@@ -861,9 +911,9 @@ def newsletter(request):
         else:
             return JsonResponse({'error': 'Invalid submission'}, status=400)
 
-    return JsonResponse({'error': 'Invalid request'}, status=400)"""
+    return JsonResponse({'error': 'Invalid request'}, status=400)
 
-import requests
+"""import requests
 from django.http import JsonResponse
 from .forms import NewsletterForm
 from django.conf import settings
@@ -874,22 +924,33 @@ def newsletter(request):
         recaptcha_response = request.POST.get('g-recaptcha-response')
 
         # Verify reCAPTCHA
-        data = {
-            'secret': settings.RECAPTCHA_SECRET_KEY,
+        recaptcha_data = {
+            'secret': settings.RECAPTCHA_PRIVATE_KEY,
             'response': recaptcha_response
         }
-        r = requests.post('https://www.google.com/recaptcha/api/siteverify', data=data)
+        r = requests.post('https://www.google.com/recaptcha/api/siteverify', data=recaptcha_data)
         result = r.json()
 
         if not result.get('success'):
             return JsonResponse({"error": "Invalid reCAPTCHA. Please try again."}, status=400)
 
+        # Honeypot check
+        if form.data.get('website'):
+            return JsonResponse({"error": "Spam detected."}, status=400)
+
         # Check form validity
         if form.is_valid():
-            form.save()
-            return JsonResponse({"message": "Thank you for subscribing!"})
+            # Save subscriber if not already exists
+            email = form.cleaned_data['email']
+            subscriber, created = form.Meta.model.objects.get_or_create(email=email)
+            if created:
+                return JsonResponse({"message": "Thank you for subscribing!"})
+            else:
+                return JsonResponse({"message": "You are already subscribed."})
         else:
             error_msg = list(form.errors.values())[0][0]
             return JsonResponse({"error": error_msg}, status=400)
 
-    return JsonResponse({"error": "Invalid request method"}, status=405)
+    return JsonResponse({"error": "Invalid request method"}, status=405)"""
+
+

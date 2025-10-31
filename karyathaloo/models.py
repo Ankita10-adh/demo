@@ -96,4 +96,3 @@ class Subscriber(models.Model):
         return self.email
 
 
-

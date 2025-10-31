@@ -8,13 +8,11 @@
     </div>
 
     <!-- reCAPTCHA -->
-    <div class="g-recaptcha" data-sitekey="{{ RECAPTCHA_SITE_KEY }}"></div>
+    {{ form.captcha }}
 
     <input type="submit" value="Subscribe" class="btn btn-gradient mt-2">
 </form>
 <div id="newsletterMessage" class="mt-2"></div>
-
-<script src="https://www.google.com/recaptcha/api.js" async defer></script>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
@@ -29,10 +27,12 @@ $(document).ready(function(){
             success: function(response){
                 $("#newsletterMessage").html('<div class="alert alert-success">' + response.message + '</div>');
                 $("#newsletterForm")[0].reset();
+                grecaptcha.reset();  // reset reCAPTCHA after success
             },
             error: function(xhr){
                 let err = xhr.responseJSON?.error || 'Something went wrong';
                 $("#newsletterMessage").html('<div class="alert alert-danger">' + err + '</div>');
+                grecaptcha.reset();  // reset reCAPTCHA after error
             }
         });
     });

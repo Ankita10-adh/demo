@@ -119,8 +119,13 @@
                 <a class="nav-link" href="{% url 'change_passwordrecruiter' %}"><i class="fa fa-user-circle mr-1"></i> Change Password</a>
             </li>
             <li class="nav-item">
+                <a class="nav-link" href="{% url 'payment:recruiter_dashboard' %}"></i>Payments</a>
+            </li>
+            <li class="nav-item">
                 <a class="nav-link" href="{% url 'Logout' %}"><i class="fa fa-sign-out mr-1"></i> Logout</a>
             </li>
+            
+</li>
         </ul>
         <span class="user-name">{{request.user.first_name}} {{request.user.last_name}}</span>
     </nav>

@@ -108,6 +108,7 @@
                 <li class="nav-item"><a class="nav-link" href="{% url 'user_home' %}"><i class="fa fa-home mr-1"></i> Home</a></li>
                 <li class="nav-item"><a class="nav-link" href="{% url 'user_latestjobs' %}"><i class="fa fa-briefcase mr-1"></i> Jobs List</a></li>
                 <li class="nav-item"><a class="nav-link" href="{% url 'change_passworduser' %}"><i class="fa fa-user-circle mr-1"></i> Change Password</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'employee_dashboard' %}"><i class="fa fa-user-circle mr-1"></i>My Payments</a>
                 <li class="nav-item"><a class="nav-link" href="{% url 'Logout' %}"><i class="fa fa-sign-out-alt mr-1"></i> Logout</a></li>
             </ul>
             <span class="user-name">{{request.user.first_name}} {{request.user.last_name}}</span>

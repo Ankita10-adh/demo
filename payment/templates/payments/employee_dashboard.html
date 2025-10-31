@@ -1,0 +1,121 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Employee Dashboard</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        .card {
+            border-radius: 12px;
+        }
+        .table th, .table td {
+            vertical-align: middle;
+        }
+        .status-success { color: green; font-weight: bold; }
+        .status-failed { color: red; font-weight: bold; }
+        .status-pending { color: orange; font-weight: bold; }
+    </style>
+</head>
+<body>
+<div class="container my-5">
+
+    <!-- Welcome Card -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card shadow p-4">
+                <h2 class="mb-3">Welcome, {{ user.username }}</h2>
+                <p><strong>Total Earned:</strong> NPR {{ total_earned }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment History -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card shadow p-4">
+                <h3 class="mb-3">Payment History</h3>
+                <table class="table table-striped table-bordered">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Transaction UUID</th>
+                            <th>Sender</th>
+                            <th>Amount</th>
+                            <th>Purpose</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                            <th>eSewa Ref ID</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for t in transactions %}
+                        <tr>
+                            <td>{{ t.transaction_uuid }}</td>
+                            <td>
+                                {% if t.sender %}
+                                    {{ t.sender.username }}
+                                {% else %}
+                                    Unknown
+                                {% endif %}
+                            </td>
+                            <td>{{ t.amount }}</td>
+                            <td>{{ t.purpose }}</td>
+                            <td class="{% if t.status == 'success' %}status-success{% elif t.status == 'failed' %}status-failed{% else %}status-pending{% endif %}">
+                                {{ t.status|capfirst }}
+                            </td>
+                            <td>{{ t.created_at|date:"Y-m-d H:i" }}</td>
+                            <td>{{ t.ref_id }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center">No payments received yet.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Applied Jobs -->
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card shadow p-4">
+                <h3 class="mb-3">Jobs You've Applied To</h3>
+                <table class="table table-striped table-bordered">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Job Title</th>
+                            <th>Company</th>
+                            <th>Applied On</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for application in applications %}
+                        <tr>
+                            <td>{{ application.job.title }}</td>
+                            <td>{{ application.job.company }}</td>
+                            <td>{{ application.apply_date|date:"Y-m-d" }}</td>
+                            <td class="{% if application.status == 'Accepted' %}status-success{% elif application.status == 'Rejected' %}status-failed{% else %}status-pending{% endif %}">
+                                {{ application.status }}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center">You haven't applied to any jobs yet.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>
