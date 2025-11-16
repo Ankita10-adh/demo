@@ -1,13 +1,11 @@
 {% load static %}
-
 {% block body %}
 
 {% include 'recruiter_navigation.html' %}
-<style>
 
-</style>
 <div class="container my-5">
     <div class="row justify-content-center align-items-start">
+
         <!-- Profile Form -->
         <div class="col-lg-7 mb-4">
             <div class="card shadow-lg p-4" style="border-radius: 15px; background-color: #fefefe;">
@@ -21,28 +19,28 @@
                     <div class="form-row">
                         <div class="form-group col-md-6">
                             <label>First Name</label>
-                            <input type="text" class="form-control form-control-lg" name="fname" value="{{recruiter.user.first_name}}">
+                            <input type="text" class="form-control form-control-lg" name="fname" value="{{ recruiter.user.first_name }}">
                         </div>
                         <div class="form-group col-md-6">
                             <label>Last Name</label>
-                            <input type="text" class="form-control form-control-lg" name="lname" value="{{recruiter.user.last_name}}">
+                            <input type="text" class="form-control form-control-lg" name="lname" value="{{ recruiter.user.last_name }}">
                         </div>
                     </div>
 
                     <div class="form-row">
                         <div class="form-group col-md-6">
                             <label>Contact Number</label>
-                            <input type="text" class="form-control form-control-lg" name="contact" value="{{recruiter.mobile}}">
+                            <input type="text" class="form-control form-control-lg" name="contact" value="{{ recruiter.mobile }}">
                         </div>
                         <div class="form-group col-md-6">
                             <label>Company Name</label>
-                            <input type="text" class="form-control form-control-lg" name="company" value="{{recruiter.company}}" readonly style="background-color: #e9ecef;">
+                            <input type="text" class="form-control form-control-lg" name="company" value="{{ recruiter.company }}" readonly style="background-color: #e9ecef;">
                         </div>
                     </div>
 
                     <div class="form-group">
                         <label>Email Address</label>
-                        <input type="email" class="form-control form-control-lg" name="email" value="{{recruiter.user.username}}" readonly style="background-color: #e9ecef;">
+                        <input type="email" class="form-control form-control-lg" name="email" value="{{ recruiter.user.username }}" readonly style="background-color: #e9ecef;">
                     </div>
 
                     <div class="form-row">
@@ -77,20 +75,37 @@
             </div>
         </div>
 
-        <!-- Profile Image -->
+        <!-- Profile Image & Payment -->
         <div class="col-lg-4 text-center">
-            <div class="card shadow-sm p-3" style="border-radius: 15px; background-color: #fdfdfd;">
-                <img src="{{recruiter.image.url}}" class="img-fluid rounded shadow" alt="Recruiter Image" style="max-height: 350px;">
+
+            <!-- Profile Image -->
+            <div class="card shadow-sm p-3 mb-4" style="border-radius: 15px; background-color: #fdfdfd;">
+                {% if recruiter.image %}
+                <img src="{{ recruiter.image.url }}" class="img-fluid rounded shadow" alt="Recruiter Image" style="max-height: 350px;">
+                {% else %}
+                <img src="{% static 'images/default_user.png' %}" class="img-fluid rounded shadow" alt="Default Image" style="max-height: 350px;">
+                {% endif %}
             </div>
 
-
+            <!-- Payment Card -->
+     {% if application.status == 'Accepted' %}
+    {% if application.recruiterpayout %}
+        <button class="btn btn-secondary" disabled>Payment {{ application.recruiterpayout.payout_status }}</button>
+    {% else %}
+        <a href="{% url 'recruiter_payout_initiation' application_id=application.id %}" class="btn btn-success">
+            Initiate Salary Payout (Rs. {{ application.job.salary }})
+        </a>
+    {% endif %}
+{% endif %}
 
         </div>
+
     </div>
 </div>
 
 {% include 'footer.html' %}
 
+<!-- Alerts -->
 {% if error == "No" %}
 <script>
     alert("Profile updated successfully!");

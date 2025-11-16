@@ -1,0 +1,20 @@
+{% extends 'navigation.html' %} 
+{% block title %}Redirecting to eSewa{% endblock %}
+
+{% block content %}
+<div class="container text-center mt-5">
+    <h2>Redirecting to eSewa...</h2>
+    <p>Please wait while we redirect you to the eSewa payment gateway. Do not refresh or close this page.</p>
+    
+    <form action="{{ esewa_url }}" method="POST" id="esewa_form">
+        {% for key, value in payment_data.items %}
+            <input type="hidden" name="{{ key }}" value="{{ value }}">
+        {% endfor %}
+    </form>
+</div>
+
+<script type="text/javascript">
+    // Auto-submit the form as soon as the page loads
+    document.getElementById('esewa_form').submit();
+</script>
+{% endblock %}

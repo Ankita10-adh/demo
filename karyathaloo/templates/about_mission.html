@@ -1,0 +1,85 @@
+{% load static %}
+{% block body %}
+{% include 'user_navigation.html' %} 
+
+<style>
+    :root {
+        --primary-color: #1e3c72; /* Deep Blue */
+        --secondary-color: #4a69bd; /* Lighter Blue */
+        --text-color: #34495e;
+    }
+    .mission-section {
+        background-color: #f8f9fa;
+        padding: 60px 0;
+    }
+    .mission-header {
+        color: var(--primary-color);
+        font-weight: 700;
+        font-size: 2.5rem;
+        margin-bottom: 20px;
+        border-bottom: 3px solid var(--secondary-color);
+        display: inline-block;
+        padding-bottom: 5px;
+    }
+    .mission-card {
+        background: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        padding: 30px;
+        transition: transform 0.3s;
+        height: 100%;
+        border-left: 5px solid var(--primary-color);
+    }
+    .mission-card:hover {
+        transform: translateY(-5px);
+    }
+    .icon-box {
+        color: var(--secondary-color);
+        font-size: 40px;
+        margin-bottom: 15px;
+    }
+</style>
+
+<div class="container-fluid mission-section">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h1 class="mission-header"><i class="fa-solid fa-rocket me-2"></i> Our Mission & Story</h1>
+            <p class="lead text-muted">Connecting talent with opportunity, one successful match at a time.</p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-lg-4 col-md-6">
+                <div class="mission-card">
+                    <div class="icon-box"><i class="fa-solid fa-lightbulb"></i></div>
+                    <h4 class="fw-bold" style="color: var(--primary-color);">Vision</h4>
+                    <p class="text-secondary">To be the most trusted and efficient job search platform, transforming careers and empowering businesses through seamless connections.</p>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6">
+                <div class="mission-card">
+                    <div class="icon-box"><i class="fa-solid fa-bullseye"></i></div>
+                    <h4 class="fw-bold" style="color: var(--primary-color);">Focus</h4>
+                    <p class="text-secondary">We focus on quality over quantity, ensuring every job posting is legitimate and every job seeker profile is taken seriously by top recruiters.</p>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-12">
+                <div class="mission-card">
+                    <div class="icon-box"><i class="fa-solid fa-code-branch"></i></div>
+                    <h4 class="fw-bold" style="color: var(--primary-color);">Technology</h4>
+                    <p class="text-secondary">Using smart matching algorithms, we drastically cut down search time, delivering personalized job recommendations and highly relevant candidates instantly.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center mt-5 pt-3">
+            <h3 style="color: var(--text-color);">Ready to Start Your Journey?</h3>
+            <a href="{% url 'user_signup' %}" class="btn btn-lg mt-3 fw-bold" style="background-color: var(--secondary-color); color: white; border-radius: 8px;">
+                Find Your Dream Job Today <i class="fa-solid fa-arrow-right ms-2"></i>
+            </a>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

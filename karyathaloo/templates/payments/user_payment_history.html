@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block title %}My Received Payments{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>Received Payments History 💰</h2>
+    <p class="text-muted">All successful payments received from Recruiters.</p>
+    <hr>
+    
+    {% if received_payments %}
+    <div class="table-responsive">
+        <table class="table table-striped table-hover">
+            <thead class="table-primary">
+                <tr>
+                    <th>Date Received</th>
+                    <th>Recruiter/Company</th>
+                    <th>Job Title</th>
+                    <th>Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for payment in received_payments %}
+                <tr>
+                    <td>{{ payment.updated_at|date:"M d, Y H:i" }}</td>
+                    <td>{{ payment.recruiter.company|default:payment.recruiter.user.username }}</td>
+                    <td>{{ payment.application.job.title }}</td>
+                    <td>**Rs. {{ payment.amount }}**</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="alert alert-warning" role="alert">
+        You have not received any payments yet. Payments only appear after a Recruiter completes the payout for an 'Accepted' application.
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

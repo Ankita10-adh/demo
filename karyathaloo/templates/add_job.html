@@ -1,121 +1,164 @@
 {% load static %}
+
 {% block body %}
 {% include 'recruiter_navigation.html' %}
 
 <style>
-  body {
-    background-color: #f0f8ff;
-  }
-  label {
-    font-weight: bold;
-    font-size: 16px;
-    margin-top: 10px;
-  }
-  input, textarea, select {
-    font-size: 16px;
-    padding: 8px;
-    border-radius: 6px;
-    border: 1px solid #ced4da;
-  }
-  input:focus, textarea:focus, select:focus {
-    outline: none;
-    border-color: #6f42c1;
-    box-shadow: 0 0 5px rgba(111, 66, 193, 0.5);
-  }
-  h2 {
-    font-family: 'Monotype Corsiva';
-    font-size: 32px;
-    color: #6f42c1;
-    margin-bottom: 25px;
-  }
-  .btn-primary {
-    background-color: #6f42c1;
-    border-color: #6f42c1;
-    font-weight: bold;
-    border-radius: 8px;
-  }
-  .btn-primary:hover {
-    background-color: #5a358a;
-    border-color: #5a358a;
-  }
-  .form-control {
-    margin-bottom: 15px;
-  }
-  textarea.form-control {
-    resize: vertical;
-  }
-  .container {
-    max-width: 800px;
-  }
+    /* Inherit Recruiter theme colors */
+    :root {
+        --recruiter-primary: #17a2b8; /* Professional Cyan/Teal */
+        --recruiter-secondary: #0c7b93; /* Darker Teal */
+        --recruiter-text: #34495e;
+        --recruiter-shadow: rgba(23, 162, 184, 0.2);
+    }
+
+    /* Form Container Card */
+    .job-form-card {
+        background-color: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        padding: 40px;
+        border-top: 5px solid var(--recruiter-primary);
+    }
+
+    /* Heading Style */
+    .job-form-header {
+        font-family: 'Poppins', sans-serif;
+        font-weight: 700;
+        color: var(--recruiter-secondary);
+        font-size: 2rem;
+    }
+
+    /* Form Labels and Inputs */
+    .form-label {
+        font-weight: 600;
+        color: var(--recruiter-text);
+        margin-bottom: 5px;
+    }
+
+    .form-control, .form-select {
+        border-radius: 8px;
+        padding: 10px 15px;
+        font-size: 0.95rem;
+        transition: border-color 0.3s;
+    }
+    .form-control:focus, .form-select:focus {
+        border-color: var(--recruiter-primary);
+        box-shadow: 0 0 0 0.25rem var(--recruiter-shadow);
+    }
+
+    /* Submit Button */
+    .btn-submit-job {
+        background-color: var(--recruiter-primary);
+        border: none;
+        color: white;
+        font-weight: 600;
+        padding: 12px 20px;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        width: 100%;
+        margin-top: 20px;
+    }
+    .btn-submit-job:hover {
+        background-color: var(--recruiter-secondary);
+        transform: translateY(-1px);
+    }
 </style>
 
 <div class="container mt-5">
-  <h2>Add New Job</h2>
-  <form method="POST" enctype="multipart/form-data" onsubmit="this.querySelector('button[type=submit]').disabled = true;">
-    {% csrf_token %}
+    <div class="job-form-card mx-auto" style="max-width: 800px;">
+        <h2 class="job-form-header text-center mb-4">
+            <i class="fa-solid fa-file-circle-plus me-2"></i> Post a New Job Opening
+        </h2>
+        
+        <form method="POST" enctype="multipart/form-data" onsubmit="this.querySelector('button[type=submit]').disabled = true;">
+            {% csrf_token %}
 
-    <label>Job Title</label>
-    <input type="text" name="title" class="form-control" required>
+            <div class="mb-3">
+                <label class="form-label" for="title">Job Title</label>
+                <input type="text" id="title" name="title" class="form-control" placeholder="e.g., Senior Software Engineer" required>
+            </div>
 
-    <label>Company</label>
-    <input type="text" name="company" class="form-control" required>
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label class="form-label" for="company">Company Name</label>
+                    <input type="text" id="company" name="company" class="form-control" placeholder="Your Company Name" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label" for="logo">Company Logo (Optional)</label>
+                    <input type="file" id="logo" name="logo" class="form-control" accept="image/*">
+                </div>
+            </div>
 
-    <label>Company Logo</label>
-    <input type="file" name="logo" class="form-control">
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label class="form-label" for="start_date">Application Start Date</label>
+                    <input type="date" id="start_date" name="start_date" class="form-control" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label" for="end_date">Application End Date</label>
+                    <input type="date" id="end_date" name="end_date" class="form-control" required>
+                </div>
+            </div>
 
-    <div class="form-row">
-      <div class="form-group col-md-6">
-        <label>Start Date</label>
-        <input type="date" name="start_date" class="form-control" required>
-      </div>
-      <div class="form-group col-md-6">
-        <label>End Date</label>
-        <input type="date" name="end_date" class="form-control" required>
-      </div>
+            <div class="mb-3">
+                <label class="form-label" for="salary">Salary (Annual/Monthly Est.)</label>
+                <input type="number" step="0.01" id="salary" name="salary" class="form-control" placeholder="Enter salary amount (e.g., 60000.00)" required>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label" for="description">Job Description</label>
+                <textarea id="description" name="description" class="form-control" rows="5" placeholder="Provide detailed responsibilities and requirements..." required></textarea>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label class="form-label" for="experience">Required Experience</label>
+                    <input type="text" id="experience" name="experience" class="form-control" placeholder="e.g., 2+ years, Freshers accepted" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label" for="location">Location</label>
+                    <input type="text" id="location" name="location" class="form-control" placeholder="City, State/Remote" required>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label" for="skills">Key Skills (Comma Separated)</label>
+                <input type="text" id="skills" name="skills" class="form-control" placeholder="e.g., Python, Django, AWS">
+            </div>
+
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <label class="form-label" for="job_type">Job Type</label>
+                    <select id="job_type" name="job_type" class="form-select" required>
+                        <option value="" disabled selected>Select Job Type</option>
+                        <option value="Full Time">Full Time</option>
+                        <option value="Part Time">Part Time</option>
+                        <option value="Internship">Internship</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label" for="work_mode">Work Mode</label>
+                    <select id="work_mode" name="work_mode" class="form-select" required>
+                        <option value="" disabled selected>Select Work Mode</option>
+                        <option value="Online">Remote / Online</option>
+                        <option value="Offline">On-site / Offline</option>
+                    </select>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-submit-job">
+                <i class="fa-solid fa-upload me-2"></i> Post Job
+            </button>
+        </form>
     </div>
-
-    <label>Salary</label>
-    <input type="number" step="0.01" name="salary" class="form-control" required>
-
-    <label>Description</label>
-    <textarea name="description" class="form-control" rows="4" required></textarea>
-
-    <label>Experience</label>
-    <input type="text" name="experience" class="form-control" required>
-
-    <label>Location</label>
-    <input type="text" name="location" class="form-control" required>
-
-    <label>Skills</label>
-    <input type="text" name="skills" class="form-control">
-
-    <div class="form-row">
-      <div class="form-group col-md-6">
-        <label>Job Type</label>
-        <select name="job_type" class="form-control" required>
-          <option value="Full Time">Full Time</option>
-          <option value="Part Time">Part Time</option>
-          <option value="Internship">Internship</option>
-        </select>
-      </div>
-      <div class="form-group col-md-6">
-        <label>Work Mode</label>
-        <select name="work_mode" class="form-control" required>
-          <option value="Online">Online</option>
-          <option value="Offline">Offline</option>
-        </select>
-      </div>
-    </div>
-
-    <button type="submit" class="btn btn-primary mt-3 btn-block">Add Job</button>
-  </form>
 </div>
 
 {% if message %}
 <script>
     alert("{{ message|escapejs }}");
     if ("{{ message }}" === "Job added successfully!") {
-        window.location.href = "{% url 'job_list' %}";
+        window.location.href = "{% url 'job_list' %}"; 
     }
 </script>
 {% endif %}

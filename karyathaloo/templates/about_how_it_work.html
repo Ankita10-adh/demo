@@ -1,0 +1,128 @@
+{% load static %}
+{% block body %}
+{% include 'user_navigation.html' %}
+
+<style>
+    :root {
+        --primary-color: #1e3c72; /* Deep Blue */
+        --accent-color: #4a69bd;
+        --text-color: #34495e;
+    }
+    .process-section {
+        padding: 50px 0;
+    }
+    .process-header {
+        color: var(--primary-color);
+        font-weight: 700;
+        font-size: 2.2rem;
+        margin-bottom: 40px;
+    }
+    .step-box {
+        text-align: center;
+        margin-bottom: 30px;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        background-color: #fff;
+        position: relative;
+        z-index: 1;
+    }
+    .step-icon {
+        font-size: 3rem;
+        color: var(--accent-color);
+        margin-bottom: 15px;
+        background: #eef2f6;
+        border-radius: 50%;
+        padding: 15px;
+    }
+    .separator {
+        border-top: 3px dashed #dcdcdc;
+        margin: -50px 0 30px 0;
+        position: relative;
+    }
+    .separator-text {
+        background: #f8f9fa;
+        color: var(--primary-color);
+        font-weight: 600;
+        padding: 5px 15px;
+        border-radius: 5px;
+        position: absolute;
+        top: -15px;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+</style>
+
+<div class="container process-section">
+    <div class="text-center">
+        <h1 class="process-header"><i class="fa-solid fa-gears me-2"></i> How Our Platform Works</h1>
+    </div>
+
+    <h3 class="mt-5 mb-4" style="color: var(--primary-color);"><i class="fa-solid fa-magnifying-glass me-2"></i> For Job Seekers</h3>
+    <div class="row">
+        <div class="col-lg-3 col-md-6">
+            <div class="step-box">
+                <div class="step-icon"><i class="fa-solid fa-id-card"></i></div>
+                <h5 class="fw-bold">1. Create Profile</h5>
+                <p class="text-muted">Register and complete your detailed profile, including education and skills.</p>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+            <div class="step-box">
+                <div class="step-icon"><i class="fa-solid fa-shuffle"></i></div>
+                <h5 class="fw-bold">2. Smart Match</h5>
+                <p class="text-muted">Our AI matches you to jobs based on your skills and experience level.</p>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+            <div class="step-box">
+                <div class="step-icon"><i class="fa-solid fa-paper-plane"></i></div>
+                <h5 class="fw-bold">3. Apply & Track</h5>
+                <p class="text-muted">Apply instantly with your stored resume and track your application status.</p>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+            <div class="step-box">
+                <div class="step-icon"><i class="fa-solid fa-handshake"></i></div>
+                <h5 class="fw-bold">4. Get Hired!</h5>
+                <p class="text-muted">Connect directly with recruiters for interviews and accept your new role.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="separator mt-4 mb-5"><span class="separator-text">FOR RECRUITERS</span></div>
+
+    <h3 class="mt-5 mb-4" style="color: var(--primary-color);"><i class="fa-solid fa-building me-2"></i> For Recruiters</h3>
+    <div class="row">
+        <div class="col-lg-3 col-md-6">
+            <div class="step-box">
+                <div class="step-icon"><i class="fa-solid fa-briefcase"></i></div>
+                <h5 class="fw-bold">1. Post a Job</h5>
+                <p class="text-muted">Quickly submit detailed job openings via our optimized form.</p>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+            <div class="step-box">
+                <div class="step-icon"><i class="fa-solid fa-filter"></i></div>
+                <h5 class="fw-bold">2. Filter Candidates</h5>
+                <p class="text-muted">Use advanced filters to narrow down applicants based on required criteria.</p>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+            <div class="step-box">
+                <div class="step-icon"><i class="fa-solid fa-user-plus"></i></div>
+                <h5 class="fw-bold">3. Review & Shortlist</h5>
+                <p class="text-muted">Review applications, change statuses, and shortlist top talent efficiently.</p>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+            <div class="step-box">
+                <div class="step-icon"><i class="fa-solid fa-calendar-days"></i></div>
+                <h5 class="fw-bold">4. Schedule Interviews</h5>
+                <p class="text-muted">Contact candidates directly to schedule interviews and finalize the hiring.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

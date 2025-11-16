@@ -4,52 +4,132 @@
 
 {% include 'admin_naviagtion.html' %}
 
-<marquee style="font-family: 'Monotype-Corsiva'; font-size:27px; margin-top:1%; color:rgb(227, 222, 219); font-weight:bold; background-color:rgb(4, 3, 2)">
-  View All Job Seekers
-</marquee>
-<hr>
 
-<div class="container mt-3">
-    <table class="table table-hover" id="example">
-        <thead> 
-            <tr style="background-color: rgb(141, 199, 177);">
-                <th>Serial No.</th>
-                <th>Full Name</th>
-                <th>Email ID</th>
-                <th>Contact No.</th>
-                <th>Gender</th>
-                <th>Type</th>
-                <th>Image</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for i in data %}                
-            <tr>
-                <td>{{ forloop.counter }}</td>
-                <td>{{ i.user.first_name }} {{ i.user.last_name }}</td>
-                <td>{{ i.user.email }}</td>
-                <td>{{ i.mobile }}</td>
-                <td>{{ i.gender }}</td>
-                <td>{{ i.type }}</td>
-                <td>
-                    {% if i.image %}
-                        <img src="{{ i.image.url }}" style="width:100px; height:100px; border-radius:50%">
-                    {% else %}
-                        No Image
-                    {% endif %}
-                </td>
-                <td>
-                    <a href="{% url 'delete_user' i.id %}" 
-                       class="btn btn-danger btn-sm" 
-                       onclick="return confirm('Do you want to remove this user?')">
-                       Delete
-                    </a>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+
+<div class="container mt-4">
+
+    <!-- Page Heading -->
+    <h2 class="text-center mb-4" style="font-family:'Monotype Corsiva'; font-size:28px;">Manage Job Seekers</h2>
+
+    <!-- Tabs -->
+    <ul class="nav nav-tabs mb-4" id="userTabs" role="tablist">
+        <li class="nav-item">
+            <a class="nav-link active" id="registered-tab" data-toggle="tab" href="#registered" role="tab">Registered Users</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="applicants-tab" data-toggle="tab" href="#applicants" role="tab">Job Applicants</a>
+        </li>
+    </ul>
+
+    <!-- Tab Content -->
+    <div class="tab-content" id="userTabsContent">
+
+        <!-- Registered Users Tab -->
+        <div class="tab-pane fade show active" id="registered" role="tabpanel">
+            <div class="row">
+                {% for user in all_users %}
+                <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+                    <div class="card shadow-sm h-100 text-center">
+                        {% if user.image %}
+                        <img src="{{ user.image.url }}" class="card-img-top" style="height:180px; object-fit:cover;">
+                        {% else %}
+                        <img src="{% static 'images/default_profile.png' %}" class="card-img-top" style="height:180px; object-fit:cover;">
+                        {% endif %}
+                        <div class="card-body">
+                            <h5>{{ user.user.first_name }} {{ user.user.last_name }}</h5>
+                            <p><strong>Email:</strong> {{ user.user.username|default:"Not Provided" }}</p>
+                            <p><strong>Gender:</strong> {{ user.gender|default:"-" }}</p>
+                            <p><strong>Contact:</strong> {{ user.mobile|default:"-" }}</p>
+                            <a href="{% url 'delete_user' user.id %}" class="btn btn-danger btn-sm mt-2" onclick="return confirm('Do you want to remove this user?')">
+                                <i class="fa fa-trash-alt"></i> Delete User
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-12 text-center text-muted">
+                    No registered users found.
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Job Applicants Tab -->
+        <div class="tab-pane fade" id="applicants" role="tabpanel">
+            <div class="row">
+                {% for app in job_applicants %}
+                <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+                    <div class="card shadow-sm h-100 text-center">
+                        {% if app.student.image %}
+                        <img src="{{ app.student.image.url }}" class="card-img-top" style="height:180px; object-fit:cover;">
+                        {% else %}
+                        <img src="{% static 'images/default_profile.png' %}" class="card-img-top" style="height:180px; object-fit:cover;">
+                        {% endif %}
+                        <div class="card-body">
+                            <h5>{{ app.student.user.first_name }} {{ app.student.user.last_name }}</h5>
+                            <p><strong>Email:</strong> {{ app.student.user.username|default:"Not Provided" }}</p>
+                            <p><strong>Gender:</strong> {{ app.student.gender|default:"-" }}</p>
+                            <p><strong>Contact:</strong> {{ app.student.mobile|default:"-" }}</p>
+                            
+                            <!-- Applied Jobs List -->
+                            <p><strong>Applied Jobs:</strong></p>
+                            <ul class="text-left" style="padding-left:20px;">
+                                {% for job in app.jobs %}
+                                <li>
+                                    {{ job.title }} ({{ job.job_type|default:"-" }})
+                                    <a href="{% url 'delete_application' job.application_id %}" 
+                                       class="btn btn-sm btn-warning" 
+                                       onclick="return confirm('Do you want to delete this application?');">
+                                       <i class="fa fa-times-circle"></i>
+                                    </a>
+                                </li>
+                                {% endfor %}
+                            </ul>
+
+                            <!-- Delete User Button -->
+                            <a href="{% url 'delete_user' app.student.id %}" class="btn btn-danger btn-sm mt-2" onclick="return confirm('Do you want to remove this user?')">
+                                <i class="fa fa-trash-alt"></i> Delete User
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-12 text-center text-muted">
+                    No job applicants found.
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+    </div>
 </div>
+
+<!-- Bootstrap JS for tabs -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Optional: Tab hover style -->
+<style>
+.nav-tabs .nav-link {
+    font-size: 16px;
+    font-weight: 500;
+    color: #444;
+    transition: all 0.3s ease-in-out;
+    border: none;
+    border-bottom: 3px solid transparent;
+}
+.nav-tabs .nav-link:hover {
+    color: #fff;
+    background-color: #6f42c1;
+    transform: scale(1.05);
+    border-radius: 8px 8px 0 0;
+}
+.nav-tabs .nav-link.active {
+    color: #fff;
+    background-color: #5a358a;
+    border-bottom: 3px solid #ffd700;
+    border-radius: 8px 8px 0 0;
+}
+</style>
 
 {% endblock %}

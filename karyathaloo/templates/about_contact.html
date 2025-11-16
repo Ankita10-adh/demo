@@ -1,0 +1,142 @@
+{% load static %}
+{% block body %}
+{% include 'user_navigation.html' %}
+
+<style>
+    /* Inherit Professional Theme (Deep Blue) */
+    :root {
+        --primary-color: #1e3c72; /* Deep Blue */
+        --accent-color: #4a69bd;
+        --text-color: #34495e;
+    }
+    .contact-section {
+        background-color: #f4f7fa;
+        padding: 50px 0;
+    }
+    .contact-card {
+        background-color: #ffffff;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        padding: 30px;
+    }
+    .contact-header {
+        color: var(--primary-color);
+        font-weight: 700;
+        font-size: 2.2rem;
+        margin-bottom: 25px;
+    }
+    .info-box {
+        background-color: var(--primary-color);
+        color: white;
+        border-radius: 15px;
+        padding: 30px;
+        height: 100%;
+    }
+    .info-box h4 {
+        margin-bottom: 20px;
+        font-weight: 600;
+    }
+    .info-box .detail {
+        margin-bottom: 20px;
+    }
+    .info-box .detail i {
+        color: var(--accent-color); /* Lighter accent color for icons */
+        margin-right: 10px;
+        font-size: 1.2rem;
+    }
+    .btn-send {
+        background-color: var(--accent-color);
+        border: none;
+        color: white;
+        font-weight: 600;
+        padding: 10px 20px;
+        border-radius: 8px;
+        transition: all 0.3s;
+        width: 100%;
+    }
+    .btn-send:hover {
+        background-color: var(--primary-color);
+    }
+    .form-control:focus {
+        border-color: var(--accent-color);
+        box-shadow: 0 0 0 0.25rem rgba(74, 105, 189, 0.25);
+    }
+</style>
+
+<div class="container-fluid contact-section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <h1 class="contact-header text-center"><i class="fa-solid fa-headset me-2"></i> Get In Touch</h1>
+                <p class="lead text-center text-muted mb-5">We are here to help you with any questions about job searching, posting, or technical support.</p>
+                
+                <div class="row g-4">
+                    <div class="col-md-7">
+                        <div class="contact-card">
+                            <h4 class="mb-4" style="color: var(--text-color);">Send Us A Message</h4>
+                            
+                            {% if message %}
+                                <div class="alert alert-info alert-dismissible fade show" role="alert">
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            {% endif %}
+
+                            <form method="post" action="{% url 'contact_us' %}">
+                                {% csrf_token %}
+                                
+                                <div class="mb-3">
+                                    <label for="name" class="form-label">Full Name</label>
+                                    <input type="text" class="form-control" id="name" name="name" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="email" class="form-label">Email Address</label>
+                                    <input type="email" class="form-control" id="email" name="email" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="subject" class="form-label">Subject</label>
+                                    <input type="text" class="form-control" id="subject" name="subject" required>
+                                </div>
+                                <div class="mb-4">
+                                    <label for="message" class="form-label">Message</label>
+                                    <textarea class="form-control" id="message" name="message" rows="5" required></textarea>
+                                </div>
+                                
+                                <button type="submit" class="btn btn-send">
+                                    <i class="fa-solid fa-paper-plane me-2"></i> Send Message
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="col-md-5">
+                        <div class="info-box">
+                            <h4>Contact Information</h4>
+                            
+                            <div class="detail">
+                                <p class="mb-1 fw-bold"><i class="fa-solid fa-location-dot"></i> Office Address:</p>
+                                <p class="small">pokhara sijweiei 328384</p>
+                            </div>
+                            
+                            <div class="detail">
+                                <p class="mb-1 fw-bold"><i class="fa-solid fa-envelope"></i> Email Support:</p>
+                                <p class="small">support@karyathalo.com</p>
+                            </div>
+
+                            <div class="detail">
+                                <p class="mb-1 fw-bold"><i class="fa-solid fa-phone"></i> Phone (General Inquiries):</p>
+                                <p class="small">+061 64783737</p>
+                            </div>
+
+                            <h4 class="mt-4">Business Hours</h4>
+                            <p class="small">Monday - Friday: 9:00 AM to 5:00 PM</p>
+                            <p class="small">Saturday & Sunday: Closed</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

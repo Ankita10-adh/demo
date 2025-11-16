@@ -1,7 +1,0 @@
-<form id="esewaForm" action="{{ esewa_url }}" method="POST">
-    {% for key, value in esewa_data.items %}
-    <input type="hidden" name="{{ key }}" value="{{ value }}">
-    {% endfor %}
-    <button type="submit" class="btn btn-success">Proceed to eSewa</button>
-</form>
-<script>document.getElementById('esewaForm').submit();</script>

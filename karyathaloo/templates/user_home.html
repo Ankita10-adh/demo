@@ -4,77 +4,202 @@
 
 {% include 'user_navigation.html' %}
 
-<!-- Page Banner / Title -->
-<div class="text-center py-5" style="background: linear-gradient(90deg, #004e92, #000428); color: #fff;">
-    <h2 class="display-3" style="font-family: 'Monotype Corsiva'; font-weight:bold;">Profile</h2>
+<style>
+    /* Inherit User theme colors */
+    :root {
+        --user-primary: #6a11cb; /* Deep Purple */
+        --user-secondary: #2575fc; /* Bright Blue */
+        --user-bg: #f7f9fc;
+        --user-text: #2c3e50;
+        --user-shadow: rgba(106, 17, 203, 0.2);
+    }
+
+    /* Page Banner / Title */
+    .profile-banner {
+        background: linear-gradient(90deg, var(--user-primary), var(--user-secondary));
+        color: #fff;
+        padding: 40px 0;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    .profile-banner h2 {
+        font-family: 'Poppins', sans-serif;
+        font-weight: 700;
+        font-size: 2.5rem;
+    }
+
+    /* Main Content */
+    .profile-section {
+        background-color: var(--user-bg);
+        padding: 50px 20px;
+    }
+
+    /* Profile Form Card */
+    .profile-card {
+        background-color: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        padding: 30px;
+        border-top: 5px solid var(--user-primary);
+    }
+
+    /* Form Labels and Inputs */
+    .form-label-custom {
+        font-weight: 600;
+        color: var(--user-text);
+        font-size: 1rem;
+        margin-bottom: 8px;
+    }
+
+    .form-control {
+        border-radius: 8px;
+        padding: 10px 15px;
+        font-size: 0.95rem;
+        transition: border-color 0.3s;
+    }
+    .form-control:focus {
+        border-color: var(--user-secondary);
+        box-shadow: 0 0 0 0.25rem var(--user-shadow);
+    }
+
+    /* Readonly Field */
+    .form-control[readonly] {
+        background-color: #e9ecef;
+        cursor: not-allowed;
+    }
+
+    /* Gender Radio Buttons */
+    .gender-group {
+        display: flex;
+        gap: 20px;
+        align-items: center;
+        padding: 10px 0;
+    }
+    .gender-group input[type="radio"] {
+        margin-right: 5px;
+        transform: scale(1.1);
+    }
+
+    /* Profile Image Section */
+    .profile-image-container {
+        padding: 20px;
+        text-align: center;
+    }
+    .profile-image-display {
+        width: 100%;
+        max-width: 350px;
+        height: auto;
+        object-fit: cover;
+        border: 4px solid white;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s;
+    }
+    .profile-image-display:hover {
+        transform: scale(1.02);
+    }
+
+    /* Submit Button */
+    .btn-update {
+        background: linear-gradient(90deg, var(--user-primary), var(--user-secondary));
+        border: none;
+        color: white;
+        font-weight: 600;
+        padding: 12px 20px;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        width: 100%;
+        margin-top: 15px;
+    }
+    .btn-update:hover {
+        opacity: 0.95;
+        transform: translateY(-2px);
+    }
+</style>
+
+<div class="profile-banner text-center">
+    <h2><i class="fa-solid fa-user-gear me-2"></i> Your Profile Information</h2>
 </div>
 
-<!-- Main Content -->
-<div class="container-fluid" style="background-color: #f0f4f8; padding:60px 20px;">
+<div class="container-fluid profile-section">
     <div class="row justify-content-center">
-        <!-- Profile Form -->
-        <div class="col-lg-6 col-md-8 mb-5">
-            <form class="p-4" style="background-color: #ffffff; border-radius:15px; box-shadow: 0 8px 20px rgba(0,0,0,0.1);" method="post" enctype="multipart/form-data">
+        
+        <div class="col-lg-7 col-md-10 mb-5">
+            <form class="profile-card" method="post" enctype="multipart/form-data">
                 {% csrf_token %}
 
-                <div class="form-row mb-3">
-                    <div class="form-group col-md-6">
-                        <label class="font-weight-bold" style="font-size:1.2rem;">First Name</label>
-                        <input type="text" class="form-control" name="fname" value="{{juser.user.first_name}}" style="font-size:1.1rem; padding:10px;">
+                <h4 class="mb-4 text-primary fw-bold">Update Details</h4>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label-custom" for="fname">First Name</label>
+                        <input type="text" class="form-control" id="fname" name="fname" value="{{juser.user.first_name}}" required>
                     </div>
-                    <div class="form-group col-md-6">
-                        <label class="font-weight-bold" style="font-size:1.2rem;">Last Name</label>
-                        <input type="text" class="form-control" name="lname" value="{{juser.user.last_name}}" style="font-size:1.1rem; padding:10px;">
+                    <div class="col-md-6">
+                        <label class="form-label-custom" for="lname">Last Name</label>
+                        <input type="text" class="form-control" id="lname" name="lname" value="{{juser.user.last_name}}" required>
                     </div>
                 </div>
 
-                <div class="form-group mb-3">
-                    <label class="font-weight-bold" style="font-size:1.2rem;">Contact Number</label>
-                    <input type="text" class="form-control" name="contact" value="{{juser.mobile}}" style="font-size:1.1rem; padding:10px;">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label-custom" for="contact">Contact Number</label>
+                        <input type="text" class="form-control" id="contact" name="contact" value="{{juser.mobile}}" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label-custom" for="email">Email Address (Read-only)</label>
+                        <input type="email" class="form-control" id="email" name="email" value="{{juser.user.username}}" readonly>
+                    </div>
                 </div>
 
-                <div class="form-group mb-3">
-                    <label class="font-weight-bold" style="font-size:1.2rem;">Email Address</label>
-                    <input type="email" class="form-control" name="email" value="{{juser.user.username}}" readonly style="font-size:1.1rem; padding:10px; background-color:#e9ecef;">
-                </div>
-
-                <div class="form-row mb-3">
-                    <div class="form-group col-md-6">
-                        <label class="font-weight-bold" style="font-size:1.2rem;">Gender</label>
-                        <div class="border p-2 rounded" style="font-size:1.1rem;">
-                            <input type="radio" name="gender" value="male" {% if juser.gender == "male" %}checked{% endif %}> Male
-                            <input type="radio" name="gender" value="female" {% if juser.gender == "female" %}checked{% endif %}> Female
-                            <input type="radio" name="gender" value="other" {% if juser.gender == "other" %}checked{% endif %}> Other
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <label class="form-label-custom">Gender</label>
+                        <div class="gender-group form-control border-0">
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="gender" id="male" value="male" {% if juser.gender == "male" %}checked{% endif %}>
+                                <label class="form-check-label" for="male">Male</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="gender" id="female" value="female" {% if juser.gender == "female" %}checked{% endif %}>
+                                <label class="form-check-label" for="female">Female</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="gender" id="other" value="other" {% if juser.gender == "other" %}checked{% endif %}>
+                                <label class="form-check-label" for="other">Other</label>
+                            </div>
                         </div>
                     </div>
-                    <div class="form-group col-md-6">
-                        <label class="font-weight-bold" style="font-size:1.2rem;">Profile Image</label>
-                        <input type="file" class="form-control" name="image" accept="image/*" style="padding:8px;">
+                    <div class="col-md-6">
+                        <label class="form-label-custom" for="image">Profile Image (Change)</label>
+                        <input type="file" class="form-control" id="image" name="image" accept="image/*">
                     </div>
                 </div>
 
-                <button type="submit" class="btn btn-dark btn-block" style="font-size:1.2rem; padding:10px;">Update Profile</button>
+                <button type="submit" class="btn btn-update">
+                    <i class="fa-solid fa-cloud-arrow-up me-2"></i> Save Changes
+                </button>
             </form>
         </div>
 
-        <!-- Profile Image -->
-        <div class="col-lg-4 col-md-6 text-center">
-            <img src="{{juser.image.url}}" class="img-fluid rounded shadow" style="max-height:450px;" alt="User Image">
+        <div class="col-lg-4 col-md-6 d-flex align-items-start justify-content-center">
+            <div class="profile-image-container">
+                <h4 class="text-secondary mb-3">Current Photo</h4>
+                <img src="{{juser.image.url}}" class="img-fluid rounded-circle profile-image-display" alt="User Profile Image">
+               
+            </div>
         </div>
     </div>
 </div>
 
 {% include 'footer.html' %}
 
-<!-- Alerts -->
 {% if error == "No" %}
 <script>
-    alert("Profile Updated Successfully!");
+    alert("Success: Profile Updated Successfully!");
     window.location = "{% url 'user_home' %}";
 </script>
 {% elif error == "yes" %}
 <script>
-    alert("Unable to update! Please try again.");
+    alert("Error: Unable to update profile! Please check your input and try again.");
 </script>
 {% endif %}
 

@@ -4,33 +4,119 @@
 
 {% include 'navigation.html' %}
 
-<marquee style ="font-family: 'Monotype-Corsiva'; font-size:27px;margin-top:1%; color:rgb(54, 51, 48);font-weight:bold; background-color:rgb(199, 176, 232)">
-    Admin login
-</marquee>
+<style>
+    /* Inherit Admin theme colors */
+    :root {
+        --admin-primary: #1e3c72; /* Deep Blue */
+        --admin-secondary: #4a69bd; /* Lighter Blue */
+        --admin-bg: #f4f7fa;
+        --admin-text: #34495e;
+        --admin-shadow: rgba(30, 60, 114, 0.2);
+    }
 
-<hr>
-<form class="container mt-5" method="post" action="{% url 'admin_login' %}">
-    {%csrf_token %}
-    <label><b>UserName</b></label>
-    <input type="text" class="form-control" name="uname" placeholder="Enter user name">
-    <label><b>Password</b></label>
-    <input type="password" class="form-control" name="pwd" placeholder="Enter password">
-    <input type="submit" class="btn btn-primary" style="margin-top:2% ;height:39px; font-size:19px; color:rgb(77, 105, 27); background-color: black;">
+    /* Form Card Container */
+    .login-card {
+        background-color: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        padding: 40px;
+        max-width: 420px; /* Constrain width for a focused login form */
+        margin: 50px auto;
+        border-top: 5px solid var(--admin-primary);
+    }
 
-</form>
+    /* Heading Style */
+    .login-header {
+        font-family: 'Poppins', sans-serif;
+        font-weight: 700;
+        color: var(--admin-primary);
+        font-size: 2rem;
+    }
+
+    /* Form Labels and Inputs */
+    .form-label {
+        font-weight: 600;
+        color: var(--admin-text);
+        margin-bottom: 5px;
+    }
+
+    .form-control {
+        border-radius: 8px;
+        padding: 10px 15px;
+        font-size: 0.95rem;
+        transition: border-color 0.3s;
+    }
+    .form-control:focus {
+        border-color: var(--admin-primary);
+        box-shadow: 0 0 0 0.25rem var(--admin-shadow);
+    }
+
+    /* Submit Button */
+    .btn-submit-login {
+        background-color: var(--admin-primary);
+        border: none;
+        color: white;
+        font-weight: 600;
+        padding: 10px 20px;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        width: 100%;
+        margin-top: 20px;
+        font-size: 1.1rem;
+    }
+    .btn-submit-login:hover {
+        background-color: var(--admin-secondary);
+        transform: translateY(-1px);
+    }
+</style>
+
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-5 col-md-8">
+            <div class="login-card">
+                <h2 class="login-header text-center mb-4">
+                    <i class="fa-solid fa-crown me-2"></i> Admin Portal Login
+                </h2>
+                
+                <form method="post" action="{% url 'admin_login' %}">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label class="form-label" for="uname">Username</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fa-solid fa-user-shield"></i></span>
+                            <input type="text" class="form-control" id="uname" name="uname" placeholder="Enter administrator username" required>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label" for="pwd">Password</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fa-solid fa-lock"></i></span>
+                            <input type="password" class="form-control" id="pwd" name="pwd" placeholder="Enter password" required>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-submit-login">
+                        <i class="fa-solid fa-right-to-bracket me-2"></i> Log In
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 {% if error == "No" %}
 <script>
-    alert("Login  Successful!!");
+    alert("Success! Login Successful. Redirecting to Admin Home.");
     window.location = "{% url 'admin_home' %}";
 </script>
 {% endif %}
 
 {% if error == "yes" %}
 <script>
-    alert("Invalid Credentials, Try Again!!");
+    alert("Authentication Error: Invalid Credentials. Please try again.");
 </script>
 {% endif %}
 
-
 {% endblock %}
-    

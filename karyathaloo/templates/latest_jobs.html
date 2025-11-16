@@ -4,95 +4,144 @@
 {% include 'navigation.html' %}
 
 <style>
-body {
-    background: linear-gradient(to bottom, #f0f8ff, #e0f7fa); /* Subtle gradient */
-    font-family: 'Segoe UI', sans-serif;
-}
+    /* Color Palette derived from the previous modern layout */
+    :root {
+        --primary-color: #007bff; /* Blue */
+        --secondary-color: #6c757d; /* Gray */
+        --dark-bg: #1e293b; /* Slate Dark */
+        --light-text: #f8fafc;
+        --accent-color: #34d399; /* Green Accent */
+        --subtle-gray: #e9ecef;
+    }
 
-.marquee-title {
-    font-family: 'Monotype Corsiva';
-    font-size: 28px;
-    font-weight: bold;
-    color: #364434;
-    background-color: #cb9279;
-    padding: 10px 0;
-    text-align: center;
-    border-radius: 8px;
-}
+    /* Overall Page Styling */
+    body {
+        background-color: var(--subtle-gray); /* Light, neutral background */
+        font-family: 'Inter', sans-serif;
+    }
 
-.table thead th {
-    background-color: #4a148c;
-    color: #fff;
-    font-size: 16px;
-    text-align: center;
-}
+    /* Modern Title Card (Replaces Marquee) */
+    .section-title-card {
+        background: linear-gradient(135deg, #007bff, #0056b3); /* Primary gradient */
+        color: var(--light-text);
+        padding: 20px;
+        margin-top: 30px;
+        margin-bottom: 30px;
+        border-radius: 12px;
+        text-align: center;
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+    }
+    .section-title-card h2 {
+        font-weight: 700;
+        font-size: 2.2rem;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .section-title-card i {
+        margin-right: 15px;
+        font-size: 1.8rem;
+    }
 
-.table tbody td {
-    font-size: 15px;
-    vertical-align: middle;
-    text-align: center;
-}
+    /* Table Container Styling */
+    .job-list-card {
+        border-radius: 12px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08); /* Modern, soft shadow */
+        overflow: hidden; /* Ensures table corners match card corners */
+    }
 
-.table-hover tbody tr:hover {
-    background-color: #d1c4e9;
-    transition: all 0.3s;
-}
+    /* Table Header Styling - FONT SIZE INCREASED (from 0.95rem to 1.05rem) */
+    .table thead th {
+        background-color: var(--dark-bg); /* Dark professional header */
+        color: var(--light-text);
+        font-weight: 600;
+        font-size: 1.05rem; 
+        vertical-align: middle;
+        padding: 12px;
+        text-align: center;
+    }
 
-.btn-apply {
-    background-color: #4a148c;
-    color: #fff;
-    font-size: 14px;
-    padding: 5px 10px;
-    border-radius: 5px;
-    transition: all 0.3s;
-}
+    /* Table Body Styling - FONT SIZE INCREASED (from 0.9rem to 1rem) */
+    .table tbody td {
+        font-size: 1rem; 
+        vertical-align: middle;
+        padding: 14px 12px; /* Adjusted padding slightly for new size */
+    }
+    .table-hover tbody tr:hover {
+        background-color: #f1f1f1; /* Lighter hover effect */
+        transition: background-color 0.2s;
+    }
 
-.btn-apply:hover {
-    background-color: #7b1fa2;
-    transform: scale(1.05);
-    color: #fff;
-}
+    /* Company Name Emphasis */
+    .company-name {
+        font-weight: 700; /* Increased weight for emphasis */
+        color: var(--dark-bg);
+    }
+
+    /* Apply Button Styling - FONT SIZE INCREASED (padding adjusted for better fit) */
+    .btn-apply-modern {
+        background-color: var(--accent-color); /* Green accent for CTA */
+        color: var(--dark-bg);
+        font-weight: 600;
+        font-size: 1rem; /* Increased size */
+        padding: 8px 18px; /* Adjusted padding */
+        border-radius: 25px; /* Slightly more rounded */
+        border: none;
+        transition: all 0.3s ease;
+    }
+    .btn-apply-modern:hover {
+        background-color: #27ad7b;
+        color: var(--light-text);
+        transform: translateY(-2px); /* Subtle lift on hover */
+        box-shadow: 0 4px 8px rgba(52, 211, 153, 0.4);
+    }
 </style>
 
-<marquee class="marquee-title">
-    Latest Jobs</marquee>
-<hr>
+<div class="container">
+    <div class="section-title-card">
+        <h2><i class="fa-solid fa-briefcase"></i> Latest Job Opportunities</h2>
+    </div>
 
-<div class="container mt-5">
-    <div class="card shadow-sm p-3" style="border-radius: 12px; background-color: #fff;">
+    <div class="job-list-card bg-white">
         <div class="table-responsive">
-            <table class="table table-bordered table-hover mb-0">
+            <table class="table table-striped table-hover mb-0">
                 <thead>
                     <tr>
-                        <th>S.No.</th>
+                        <th style="width: 5%;">#</th>
                         <th>Company</th>
                         <th>Job Title</th>
-                        <th>Job Type</th>
-                        <th>Work Mode</th>
+                        <th>Type</th>
+                        <th>Mode</th>
                         <th>Location</th>
                         <th>Start Date</th>
                         <th>End Date</th>
-                        <th>Actions</th>
+                        <th style="width: 15%;">Apply</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for job in jobs %}
                     <tr>
                         <td>{{ forloop.counter }}</td>
-                        <td>{{ job.recruiter.company }}</td>
+                        <td class="company-name">{{ job.recruiter.company }}</td>
                         <td>{{ job.title }}</td>
-                        <td>{{ job.job_type }}</td>
-                        <td>{{ job.work_mode }}</td>
+                        <td><span class="badge text-bg-primary">{{ job.job_type }}</span></td>
+                        <td><span class="badge text-bg-secondary">{{ job.work_mode }}</span></td>
                         <td>{{ job.location }}</td>
                         <td>{{ job.start_date }}</td>
                         <td>{{ job.end_date }}</td>
                         <td>
-                            <a href="{% url 'user_login' %}" class="btn btn-apply btn-sm">Login To Apply</a>
+                            <a href="{% url 'user_login' %}" class="btn btn-apply-modern btn-sm">
+                                <i class="fa-solid fa-arrow-up-right-from-square me-1"></i> Apply
+                            </a>
                         </td>
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="9" class="text-center">No jobs found.</td>
+                        <td colspan="9" class="text-center py-4">
+                            <i class="fa-solid fa-face-frown me-2 text-secondary"></i>
+                            <span class="text-muted">No latest job opportunities found at the moment.</span>
+                        </td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -100,5 +149,6 @@ body {
         </div>
     </div>
 </div>
+
 {% include 'footer.html' %}
 {% endblock %}

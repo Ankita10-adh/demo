@@ -3,45 +3,130 @@
 {% block body %}
 {% include 'navigation.html' %}
 
-<!-- Banner Section -->
-<div class="position-relative text-center" style="margin-top:1%;">
-    <!-- Banner Image -->
-    <img src="{% static 'images/front.png' %}" 
-         alt="Banner" 
-         class="img-fluid w-100"
-         style="height:600px; object-fit:cover;">
+<style>
+    /* Ensure the body font consistency */
+    body {
+        font-family: 'Inter', sans-serif;
+    }
 
-    <!-- Semi-transparent overlay -->
-    <div style="
-        position:absolute;
-        top:0;
-        left:0;
-        width:100%;
-        height:100%;
-        background: rgba(0,0,0,0.4);
-    "></div>
+    /* Hero Section Styling */
+    .hero-banner {
+        height: 80vh; /* Responsive height */
+        min-height: 500px; /* Minimum height for large screens */
+        background-color: #1e293b; /* Fallback dark color */
+        margin-top: 0; /* Ensures the banner sits right below the sticky navbar */
+    }
 
-    <!-- Headline and Subtext -->
-    <div style="
-        position:absolute;
-        top:50%;
-        left:50%;
+    /* Background Image and Overlay */
+    .hero-banner .hero-image {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .hero-banner .overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(30, 41, 59, 0.6); /* Darker, more professional overlay */
+    }
+
+    /* Content Styling */
+    .hero-content {
+        position: absolute;
+        top: 50%;
+        left: 50%;
         transform: translate(-50%, -50%);
-        color:white;
-        text-align:center;
-    ">
-        <h1 style="font-size:4rem; font-weight:bold; text-shadow:2px 2px 6px rgba(0,0,0,0.7);">
-            Your Career, Your Choice
+        color: white;
+        text-align: center;
+        max-width: 900px;
+        width: 90%;
+    }
+
+    .hero-content h1 {
+        font-size: clamp(2.5rem, 6vw, 4.5rem); /* Responsive typography */
+        font-weight: 800;
+        text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.8);
+        margin-bottom: 1rem;
+    }
+
+    .hero-content p {
+        font-size: clamp(1.1rem, 2vw, 1.5rem);
+        font-weight: 500;
+        text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.7);
+        margin-bottom: 2rem;
+    }
+
+    /* Modern Call-to-Action Button */
+    .btn-cta-primary {
+        background: linear-gradient(90deg, #3b82f6, #007bff); /* Stronger blue gradient */
+        border: none;
+        padding: 12px 30px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);
+    }
+
+    .btn-cta-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 15px rgba(0, 123, 255, 0.5);
+        background: linear-gradient(90deg, #007bff, #3b82f6);
+    }
+</style>
+
+<div class="hero-banner position-relative text-center">
+    
+    <img src="{% static 'images/front.png' %}" 
+        alt="Job Search Banner" 
+        class="hero-image">
+
+    <div class="overlay"></div>
+
+    <div class="hero-content">
+        <h1>
+            Find Your Next Career Move
         </h1>
-        <p style="font-size:1.5rem; font-weight:500; text-shadow:1px 1px 4px rgba(0,0,0,0.6); margin-top:1rem;">
-            Apply online or offline, explore jobs, and take the next step toward success.
+        <p>
+            Seamlessly search online and offline opportunities. Take the next step toward a fulfilling career.
         </p>
-        <!-- Optional Call-to-Action Button -->
+        
         <a href="{% url 'latest_jobs' %}" 
-           class="btn btn-primary btn-lg mt-3" 
-           style="background: linear-gradient(45deg,#007bff,#00d4ff); border:none;">
-            Explore Jobs
+           class="btn btn-cta-primary btn-lg">
+            <i class="fa-solid fa-magnifying-glass me-2"></i> Explore Latest Jobs
         </a>
+    </div>
+</div>
+
+<div class="container my-5">
+    <div class="row text-center">
+        <div class="col-md-4 mb-4">
+            <div class="card p-4 shadow-sm border-0">
+                <i class="fa-solid fa-rocket fa-3x mb-3 text-primary"></i>
+                <h5 class="card-title">Quick Start</h5>
+                <p class="card-text">Apply to jobs in minutes with our streamlined application process.</p>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card p-4 shadow-sm border-0">
+                <i class="fa-solid fa-mobile-screen-button fa-3x mb-3 text-primary"></i>
+                <h5 class="card-title">Flexible Modes</h5>
+                <p class="card-text">Explore both online listings and local offline opportunities easily.</p>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card p-4 shadow-sm border-0">
+                <i class="fa-solid fa-shield-halved fa-3x mb-3 text-primary"></i>
+                <h5 class="card-title">Trusted Recruiters</h5>
+                <p class="card-text">We verify all companies to ensure you find safe and genuine positions.</p>
+            </div>
+        </div>
     </div>
 </div>
 

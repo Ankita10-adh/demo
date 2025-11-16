@@ -2,75 +2,165 @@
 {% block body %}
 {% include 'recruiter_navigation.html' %}
 
+<style>
+    /* Assuming the Recruiter variables are set in recruiter_navigation.html or inherited */
+    :root {
+        --recruiter-primary: #17a2b8; /* Professional Cyan/Teal */
+        --recruiter-accent: #28a745; /* Green for success/accept */
+        --recruiter-danger: #dc3545; /* Red for reject */
+        --recruiter-warning: #ffc107; /* Yellow for pending */
+        --recruiter-bg: #f4f9fd;
+    }
+
+    /* Page-specific styling for the content area */
+    .content-card {
+        background-color: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+        padding: 30px;
+    }
+
+    /* Table Header Styling */
+    .table thead th {
+        background-color: var(--recruiter-primary);
+        color: #fff;
+        font-weight: 600;
+        vertical-align: middle;
+        text-align: center;
+        font-size: 0.95rem;
+    }
+
+    /* Table Body Styling */
+    .table tbody td {
+        vertical-align: middle;
+        font-size: 0.9rem;
+        padding: 12px;
+    }
+    .table-hover tbody tr:hover {
+        background-color: #e8f5fe; /* Light blue hover */
+    }
+
+    /* Resume Button */
+    .btn-view-resume {
+        background-color: #6c757d; /* Dark gray for info */
+        border-color: #6c757d;
+        color: white;
+    }
+    .btn-view-resume:hover {
+        background-color: #5a6268;
+        border-color: #5a6268;
+        color: white;
+    }
+
+    /* Status Badges (Using Bootstrap 5 classes) */
+    .badge-pending { background-color: var(--recruiter-warning); color: #34495e; }
+    .badge-accepted { background-color: var(--recruiter-accent); color: #fff; }
+    .badge-rejected { background-color: var(--recruiter-danger); color: #fff; }
+
+    /* Action Buttons (More distinctive design) */
+    .btn-action-accept {
+        background-color: var(--recruiter-accent);
+        border: none;
+        transition: transform 0.2s;
+    }
+    .btn-action-accept:hover {
+        background-color: #1e7e34;
+        transform: scale(1.05);
+    }
+    .btn-action-reject {
+        background-color: var(--recruiter-danger);
+        border: none;
+        transition: transform 0.2s;
+    }
+    .btn-action-reject:hover {
+        background-color: #c82333;
+        transform: scale(1.05);
+    }
+</style>
+
 <div class="container mt-5">
-    <h2>Applied Candidates for Your Jobs</h2>
+    <div class="content-card">
+        <h3 class="mb-4 text-primary fw-bold">
+            <i class="fa-solid fa-users-viewfinder me-2"></i> Candidate Applications Review
+        </h3>
 
-    <table class="table table-bordered table-striped mt-3">
-        <thead class="thead-dark">
-            <tr>
-                <th>S.No</th>
-                <th>Applicant Name</th>
-                <th>Email</th>
-                <th>Mobile</th>
-                <th>Job Title</th>
-                <th>Resume</th>
-                <th>Status</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for app in applications %}
-            <tr>
-                <td>{{ forloop.counter }}</td>
+        <div class="table-responsive">
+            <table class="table table-striped table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th style="width: 5%;">#</th>
+                        <th>Applicant Name</th>
+                        <th>Job Title</th>
+                        <th>Contact Info</th>
+                        <th class="text-center">Resume</th>
+                        <th class="text-center">Status</th>
+                        <th class="text-center" style="width: 15%;">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for app in applications %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
 
-                <!-- Applicant Details -->
-                <td>{{ app.student.user.first_name }} {{ app.student.user.last_name }}</td>
-                <td>{{ app.student.user.username }}</td>
-                <td>{{ app.student.mobile }}</td>
+                        <td class="fw-bold">{{ app.student.user.first_name }} {{ app.student.user.last_name }}</td>
 
-                <!-- Job Details -->
-                <td>{{ app.job.title }}</td>
+                        <td>{{ app.job.title }}</td>
 
-                <!-- Resume -->
-                <td>
-                    {% if app.resume %}
-                        <a href="{{ app.resume.url }}" target="_blank" class="btn btn-info btn-sm">View Resume</a>
-                    {% else %}
-                        <span class="text-muted">Not Uploaded</span>
-                    {% endif %}
-                </td>
+                        <td>
+                            <i class="fa-solid fa-envelope me-1 text-secondary"></i> {{ app.student.user.username }}<br>
+                            <i class="fa-solid fa-phone me-1 text-secondary"></i> {{ app.student.mobile }}
+                        </td>
 
-                <!-- Status -->
-                <td>
-                    <span class="badge 
-                        {% if app.status == 'Accepted' %} badge-success
-                        {% elif app.status == 'Rejected' %} badge-danger
-                        {% else %} badge-warning {% endif %}">
-                        {{ app.status|default:"Pending" }}
-                    </span>
-                </td>
+                        <td class="text-center">
+                            {% if app.resume %}
+                                <a href="{{ app.resume.url }}" target="_blank" class="btn btn-view-resume btn-sm">
+                                    <i class="fa-solid fa-file-pdf me-1"></i> View
+                                </a>
+                            {% else %}
+                                <span class="text-muted"><i class="fa-solid fa-circle-xmark me-1"></i> Missing</span>
+                            {% endif %}
+                        </td>
 
-                <!-- Recruiter Action -->
-                <td>
-                    {% if app.status == "Pending" %}
-                    <form method="post" style="display:inline;">
-                        {% csrf_token %}
-                        <input type="hidden" name="application_id" value="{{ app.id }}">
-                        <button type="submit" name="status" value="Accepted" class="btn btn-success btn-sm">Accept</button>
-                        <button type="submit" name="status" value="Rejected" class="btn btn-danger btn-sm">Reject</button>
-                    </form>
-                    {% else %}
-                        {{ app.status }}
-                    {% endif %}
-                </td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="8" class="text-center text-muted">No candidates have applied yet.</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+                        <td class="text-center">
+                            <span class="badge rounded-pill 
+                                {% if app.status == 'Accepted' %} badge-accepted
+                                {% elif app.status == 'Rejected' %} badge-rejected
+                                {% else %} badge-pending {% endif %}">
+                                {{ app.status|default:"Pending" }}
+                            </span>
+                        </td>
+
+                        <td class="text-center">
+                            {% if app.status == "Pending" %}
+                            <form method="post" style="display:inline;">
+                                {% csrf_token %}
+                                <input type="hidden" name="application_id" value="{{ app.id }}">
+                                <div class="d-grid gap-2 d-md-block">
+                                    <button type="submit" name="status" value="Accepted" class="btn btn-action-accept btn-sm me-1">
+                                        <i class="fa-solid fa-check"></i> Accept
+                                    </button>
+                                    <button type="submit" name="status" value="Rejected" class="btn btn-action-reject btn-sm">
+                                        <i class="fa-solid fa-xmark"></i> Reject
+                                    </button>
+                                </div>
+                            </form>
+                            {% else %}
+                                <span class="text-muted fst-italic">{{ app.status }}</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center py-4">
+                            <i class="fa-solid fa-face-sad-cry me-2 text-secondary"></i>
+                            <span class="text-muted">No candidates have applied for your jobs yet.</span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
 
 {% endblock %}

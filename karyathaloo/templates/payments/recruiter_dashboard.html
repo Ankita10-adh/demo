@@ -1,0 +1,133 @@
+{% extends "recruiter_navigation.html" %}
+{% block content %}
+
+<div class="mt-4">
+
+    <!-- Dashboard Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="text-primary"><i class="fas fa-wallet"></i> Recruiter Payment Dashboard</h2>
+    </div>
+
+    <!-- Total Spent Card -->
+    <div class="card mb-4 shadow-sm">
+        <div class="card-body">
+            <h5>Total Spent: <strong>NPR {{ total_spent }}</strong></h5>
+        </div>
+    </div>
+
+    <!-- Payment Status Summary Cards -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card text-white bg-success shadow-sm text-center">
+                <div class="card-body">
+                    <h5>Success</h5>
+                    <h3>{{ summary.Success }}</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card text-white bg-warning shadow-sm text-center">
+                <div class="card-body">
+                    <h5>Pending</h5>
+                    <h3>{{ summary.Pending }}</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card text-white bg-danger shadow-sm text-center">
+                <div class="card-body">
+                    <h5>Failed</h5>
+                    <h3>{{ summary.Failed }}</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payments Table -->
+    {% if payments %}
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped table-hover shadow-sm">
+            <thead class="thead-dark">
+                <tr>
+                    <th>Job</th>
+                    <th>Amount (NPR)</th>
+                    <th>Status</th>
+                    <th>Reference ID</th>
+                    <th>Date</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for pay in payments %}
+                <tr>
+
+                    <!-- Job Column -->
+                    <td>
+                        {% if pay.job %}
+                            {{ pay.job.title }}
+                        {% else %}
+                            &mdash;
+                        {% endif %}
+                    </td>
+
+                    <!-- Amount Column -->
+                    <td>{{ pay.amount }}</td>
+
+                    <!-- Status Column -->
+                    <td>
+                        {% if pay.status == 'Pending' %}
+                            <span class="text-warning font-weight-bold">Pending</span>
+                        {% elif pay.status == 'Failed' %}
+                            <span class="text-danger font-weight-bold">Failed</span>
+                        {% else %}
+                            <span class="text-success font-weight-bold">Paid</span>
+                        {% endif %}
+                    </td>
+
+                    <!-- Reference ID -->
+                    <td>
+                        {% if pay.ref_id %}
+                            {{ pay.ref_id }}
+                        {% else %}
+                            &mdash;
+                        {% endif %}
+                    </td>
+
+                    <!-- Payment Date -->
+                    <td>
+                        {% if pay.date %}
+                            {{ pay.date|date:"Y-m-d" }}
+                        {% else %}
+                            &mdash;
+                        {% endif %}
+                    </td>
+
+                    <!-- Action -->
+                    <td>
+                        {% if pay.status != 'Success' %}
+                            <a href="{% url 'retry_payment' pay.id %}" class="btn btn-sm btn-outline-primary">
+                                Pay Again
+                            </a>
+                        {% else %}
+                            <span class="text-success">Paid</span>
+                        {% endif %}
+                    </td>
+
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% else %}
+    <div class="alert alert-info shadow-sm">
+        No payments found yet.
+    </div>
+    {% endif %}
+
+</div>
+
+{% endblock %}

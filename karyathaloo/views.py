@@ -120,14 +120,12 @@ def recruiter_login(request):
     d = {'error': error}
     return render(request, 'recruiter_login.html', d)
 
-
 from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
+from django.contrib import messages
 from .models import UserProfile
 
 def user_signup(request):
-    error = ""
-    
     if request.method == 'POST':
         fname = request.POST.get('fname', '').strip()
         lname = request.POST.get('lname', '').strip()
@@ -138,38 +136,49 @@ def user_signup(request):
         gender = request.POST.get('gender', '').strip()
         image = request.FILES.get('image')  # optional
 
-        # 1. Check password match
-        if password != confirm_password:
-            error = "password_mismatch"
-        # 2. Check if email already exists
-        elif User.objects.filter(username=email).exists():
-            error = "email_exists"
-        # 3. Ensure required fields are present
-        elif not gender:
-            error = "gender_missing"
-        else:
-            try:
-                # Create user
-                user = User.objects.create_user(
-                    username=email,
-                    first_name=fname,
-                    last_name=lname,
-                    password=password
-                )
-                # Create profile
-                UserProfile.objects.create(
-                    user=user,
-                    mobile=contact,
-                    image=image,
-                    gender=gender,
-                    type=""
-                )
-                error = "No"  # success
-            except Exception as ex:
-                print("Signup error:", ex)
-                error = "yes"  # generic error
+        # Validation
+        if not all([fname, lname, email, password, confirm_password, gender]):
+            messages.error(request, "All fields are required.")
+            return render(request, 'user_signup.html')
 
-    return render(request, 'user_signup.html', {'error': error})
+        if password != confirm_password:
+            messages.error(request, "Passwords do not match.")
+            return render(request, 'user_signup.html')
+
+        if User.objects.filter(username=email).exists():
+            messages.error(request, "Email is already registered.")
+            return render(request, 'user_signup.html')
+
+        try:
+            # Create the user
+            user = User.objects.create_user(
+                username=email,
+                first_name=fname,
+                last_name=lname,
+                email=email,   # Save email correctly
+                password=password
+            )
+
+            # Create user profile
+            UserProfile.objects.create(
+                user=user,
+                mobile=contact,
+                image=image,
+                gender=gender,
+                type=""  # Can be set later if needed
+            )
+
+            messages.success(request, "Signup successful. You can now log in.")
+            return redirect('user_login')  # Redirect to login after signup
+
+        except Exception as ex:
+            print("Signup error:", ex)
+            messages.error(request, "Something went wrong. Please try again.")
+            return render(request, 'user_signup.html')
+
+    # GET request
+    return render(request, 'user_signup.html')
+
 
 
 
@@ -223,7 +232,7 @@ def admin_home(request):
 def recruiter_home(request):
     if not request.user.is_authenticated:
         return redirect('recruiter_login')
-    return render(request,'recruiter_home.html')
+    return render(request,'recruiter_home.html', {'recruiters': recruiters})
 
 
 
@@ -331,13 +340,72 @@ def recruiter_home(request):
     return render(request, 'recruiter_home.html', d)
 
 
+from django.shortcuts import render, redirect
+from .models import UserProfile, Apply
 
 def view_user(request):
     if not request.user.is_authenticated:
         return redirect('admin_login')
-    data= UserProfile.objects.all()      # fetech all the data of job seeker from the users models
-    d={'data':data}                 # dictionary variable
-    return render(request,'view_user.html',d)
+    
+    # All registered users
+    all_users = UserProfile.objects.select_related('user').all()
+    
+    # All applications ordered by student
+    all_applications = Apply.objects.select_related('student__user','job').order_by('student', 'apply_date')
+    
+    # Aggregate applications per student and store application id per job
+    applicant_dict = {}
+    for app in all_applications:
+        student_id = app.student.id
+        job_info = {
+            'title': app.job.title,
+            'job_type': app.job.job_type,
+            'application_id': app.id  # store application id for delete button
+        }
+        if student_id not in applicant_dict:
+            applicant_dict[student_id] = {
+                'student': app.student,
+                'jobs': [job_info]
+            }
+        else:
+            applicant_dict[student_id]['jobs'].append(job_info)
+    
+    unique_applicants = list(applicant_dict.values())
+    
+    context = {
+        'all_users': all_users,
+        'job_applicants': unique_applicants
+    }
+    
+    return render(request, 'view_user.html', context)
+
+
+
+
+
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
+from .models import Apply
+
+def delete_application(request, application_id):
+    if not request.user.is_authenticated:
+        return redirect('admin_login')
+    
+    # Fetch the application object or return 404 if not found
+    application = get_object_or_404(Apply, id=application_id)
+    
+    # Optional: You can store info for messages
+    applicant_name = f"{application.student.user.first_name} {application.student.user.last_name}"
+    job_title = application.job.title
+    
+    # Delete the application
+    application.delete()
+    
+    # Show a success message (optional)
+    messages.success(request, f"Application of {applicant_name} for '{job_title}' has been deleted successfully.")
+    
+    # Redirect back to the view user page
+    return redirect('view_user')
 
 
 
@@ -655,14 +723,14 @@ def user_latestjobs(request):
     
     user = request.user
     try:
-        student = UserProfile.objects.get(user=user)  # ✅ fixed: was `users`
+        student = UserProfile.objects.get(user=user)  
     except UserProfile.DoesNotExist:
         student = None
 
     li = []
     if student:
         data = Apply.objects.filter(student=student)
-        li = [i.job.id for i in data]  # ✅ cleaner way to collect job ids
+        li = [i.job.id for i in data]  
 
     context = {
         'jobs': jobs,
@@ -953,4 +1021,171 @@ def newsletter(request):
 
     return JsonResponse({"error": "Invalid request method"}, status=405)"""
 
+# In your existing views.py file
 
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from django.db import transaction
+
+from .models import Recruiter, UserProfile, Apply, RecruiterPayout, PaymentTransaction # Import new models
+# Other imports...
+
+@login_required
+def recruiter_payout_initiation(request, application_id):
+    """
+    Recruiter initiates the payment process for an accepted application.
+    """
+    try:
+        recruiter = Recruiter.objects.get(user=request.user)
+    except Recruiter.DoesNotExist:
+        messages.error(request, "Access denied. You are not a Recruiter.")
+        return redirect('recruiter_dashboard')
+
+    application = get_object_or_404(Apply, id=application_id, job__recruiter=recruiter)
+
+    # Check if the application status is 'Accepted' (Required for payout)
+    if application.status != 'Accepted':
+        messages.error(request, "Cannot initiate payment. Employee status is not 'Accepted'.")
+        return redirect('recruiter_application_detail', application_id=application_id)
+
+    # Check if a Payout record already exists to prevent duplicate payment attempts
+    if RecruiterPayout.objects.filter(application=application).exists():
+        messages.warning(request, "Payment for this application has already been initiated or recorded.")
+        return redirect('recruiter_application_detail', application_id=application_id)
+
+    # Determine the payout amount (using the Job salary as the reference)
+    payout_amount = application.job.salary # You might adjust this based on your business logic
+
+    try:
+        with transaction.atomic():
+            # 1. Create the internal Payout Ledger entry
+            payout = RecruiterPayout.objects.create(
+                application=application,
+                recruiter=recruiter,
+                student=application.student,
+                amount=payout_amount,
+                payout_status='INITIATED'
+            )
+            
+            # 2. **INTEGRATE EXTERNAL GATEWAY HERE**
+            # Instead of a real API call, we simulate a successful transaction for the demo.
+            # In a real system, this would call your payment service (e.g., PayPal, Bank API).
+            
+            external_txn_id = f"TXN-{application.id}-{payout.id}-{payout.created_at.timestamp()}" # Placeholder ID
+            
+            # 3. Create the Transaction Detail record
+            PaymentTransaction.objects.create(
+                payout=payout,
+                transaction_id=external_txn_id,
+                gateway_name='Simulated Bank Transfer',
+                transaction_status='SUCCESS', # Simulate success for demo
+                processed_at=timezone.now() # Requires `from django.utils import timezone`
+            )
+            
+            # 4. Update the Payout Ledger status
+            payout.payout_status = 'COMPLETED'
+            payout.save()
+
+            messages.success(request, f"Payout of Rs. {payout_amount} successfully processed for {application.student.user.username}.")
+            
+    except Exception as e:
+        messages.error(request, f"An error occurred during payment processing: {e}")
+        # Optionally, update Payout status to FAILED here
+
+    return redirect('recruiter_application_detail', application_id=application_id)
+
+
+# --- Dashboard Views ---
+
+@login_required
+def recruiter_payment_history(request):
+    """
+    Recruiter dashboard to view all payout transactions they initiated.
+    """
+    try:
+        recruiter = Recruiter.objects.get(user=request.user)
+    except Recruiter.DoesNotExist:
+        messages.error(request, "Access denied.")
+        return redirect('naviagtion')
+
+    # Get all payouts initiated by this recruiter
+    payouts = RecruiterPayout.objects.filter(recruiter=recruiter).order_by('-created_at')
+
+    # Template name: core/recruiter_payout_history.html
+    return render(request, 'payments/recruiter_payout_history.html', {'payouts': payouts})
+
+
+@login_required
+def user_payment_history(request):
+    """
+    User/Employee dashboard to view all payments they received.
+    """
+    try:
+        user_profile = UserProfile.objects.get(user=request.user)
+    except UserProfile.DoesNotExist:
+        messages.error(request, "Access denied.")
+        return redirect('navigation')
+
+    # Get all payouts where this user is the student
+    received_payments = RecruiterPayout.objects.filter(student=user_profile, 
+                                                       payout_status='COMPLETED').order_by('-created_at')
+
+    # Template name: core/user_payment_history.html
+    return render(request, 'payments/user_payment_history.html', {'received_payments': received_payments})
+
+from django.shortcuts import render, redirect
+# from django.core.mail import send_mail # You'll need this for real email sending
+
+# 1. Mission and Story (Renders about_mission.html)
+def about_mission(request):
+    """Renders the company's mission and story page."""
+    return render(request, 'about_mission.html')
+
+# 2. How It Works (Renders about_how_it_works.html)
+def about_how_it_works(request):
+    """Renders the guide explaining platform functionality for users and recruiters."""
+    return render(request, 'about_how_it_works.html')
+# 3. Contact Us (Handles GET and POST requests)
+def contact_us(request):
+    """
+    Handles displaying the contact form (GET) and processing the message submission (POST).
+    """
+    message_context = {}
+
+    if request.method == 'POST':
+        # Retrieve form data
+        name = request.POST.get('name')
+        email = request.POST.get('email')
+        subject = request.POST.get('subject')
+        message = request.POST.get('message')
+        
+        # Simple Validation (You should expand this!)
+        if not name or not email or not subject or not message:
+            message_context['message'] = 'Error: Please fill in all fields.'
+        else:
+            try:
+                # --- PROCESSING ACTION (E.g., Sending Email) ---
+                
+                # To make this functional, you must configure Django's EMAIL_HOST settings.
+                # Example:
+                # send_mail(
+                #     f"New Contact Form Submission: {subject}",
+                #     f"From: {name} ({email})\n\nMessage:\n{message}",
+                #     email,  # Sender email address
+                #     ['admin@yourjobportal.com'], # Recipient list
+                #     fail_silently=False,
+                # )
+                
+                # --- SUCCESS ---
+                message_context['message'] = 'Thank you! Your message has been sent successfully. We will respond soon.'
+            
+            except Exception:
+                # --- ERROR ---
+                message_context['message'] = 'A system error occurred while sending your message. Please try again later.'
+            
+            # Note: You can optionally redirect here after success instead of re-rendering.
+            # return redirect('contact_us') 
+
+    # Renders the template, passing any message context
+    return render(request, 'about_contact.html', message_context)

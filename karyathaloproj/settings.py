@@ -40,7 +40,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'karyathaloo',
     'captcha',
-    'payment',
+    
+   
+
    
 ]
 
@@ -147,11 +149,10 @@ NOCAPTCHA = True
 
 
 
-# eSewa RC Sandbox
-ESEWA_MERCHANT_CODE = "EPAYTEST"
-ESEWA_SECRET_KEY = "YOUR_SANDBOX_SECRET_KEY"  # Ask eSewa for this in sandbox
-ESEWA_PAYMENT_URL = "https://rc-epay.esewa.com.np/api/epay/main/v2/form"
-ESEWA_SUCCESS_URL = "http://127.0.0.1:8000/payment/success/"
-ESEWA_FAILURE_URL = "http://127.0.0.1:8000/payment/failed/"
+ESEWA_MERCHANT_CODE = 'EPAYTEST'
+ESEWA_SUCCESS_URL = 'http://127.0.0.1:8000/payment/success/'
+ESEWA_FAILURE_URL = 'http://127.0.0.1:8000/payment/failed/'
+
+
 
 

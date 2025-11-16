@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block title %}Payment Failed{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="alert alert-danger text-center shadow p-5">
+        <h1>Payment Failed or Cancelled 😔</h1>
+        <hr>
+        <p class="lead">We were unable to process your payment via eSewa. Please try again or contact support.</p>
+        
+        {% if payment %}
+            <p>Attempted Amount: **Rs. {{ payment.amount }}**</p>
+            <p>Your Reference ID: {{ payment.reference_id }}</p>
+        {% endif %}
+        
+        <a href="{% url 'recruiter_payment_history' %}" class="btn btn-info mt-3">Check History Status</a>
+        <button onclick="window.history.back()" class="btn btn-outline-danger mt-3">Try Again</button>
+    </div>
+</div>
+{% endblock %}

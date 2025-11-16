@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block title %}Payment Successful{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="alert alert-success text-center shadow p-5">
+        <h1>Payment Successful! 🎉</h1>
+        <hr>
+        <p class="lead">Your payment for **{% if payment.job %}Job Post: {{ payment.job.title }}{% else %}{{ payment.product_code }}{% endif %}** has been processed.</p>
+        
+        <table class="table table-bordered mt-4">
+            <tbody>
+                <tr>
+                    <th scope="row">Amount Paid</th>
+                    <td>**Rs. {{ payment.amount }}**</td>
+                </tr>
+                <tr>
+                    <th scope="row">Payment Date</th>
+                    <td>{{ payment.paid_on|date:"M d, Y | H:i" }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">Your Reference ID</th>
+                    <td>{{ payment.reference_id }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">eSewa Transaction Code</th>
+                    <td>{{ payment.transaction_uuid|default:"N/A" }}</td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <a href="{% url 'recruiter_payment_history' %}" class="btn btn-success mt-3">View Payment History</a>
+        <a href="{% url 'recruiter_dashboard' %}" class="btn btn-outline-secondary mt-3">Go to Dashboard</a>
+    </div>
+</div>
+{% endblock %}

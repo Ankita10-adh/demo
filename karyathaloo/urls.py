@@ -5,10 +5,9 @@ from karyathaloo.views import*
 from django.conf import settings
 from django.conf.urls.static import static
 from django.urls import path, include 
-from payment.views import employee_dashboard, recruiter_dashboard 
+
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
     path('',index,name='index'),
     path('admin_login',admin_login,name="admin_login"),
     path('user_login',user_login,name="user_login"),
@@ -20,6 +19,7 @@ urlpatterns = [
     path('recruiter_home',recruiter_home,name='recruiter_home'),
     path('admin_home',admin_home,name="admin_home"),
     path('view_user',view_user,name="view_user"),
+    path('delete_application/<int:application_id>/',delete_application, name='delete_application'),
     path('delete_user/<int:pid>',delete_user,name="delete_user"),
     path('recruiter_pending',recruiter_pending,name='recruiter_pending'),
     path('change_status/<int:pid>',change_status,name="change_status"),
@@ -46,8 +46,26 @@ urlpatterns = [
     #path("recruiter/application/update/<int:app_id>/<str:new_status>/",update_applicant_status, name="update_applicant_status"),
     path("recruiter_contact/<int:job_id>/",recruiter_contact, name="recruiter_contact"),
     path('newsletter/',newsletter, name='newsletter'),
+    
+    # Payout Initiation
+    path('recruiter/payout/initiate/<int:application_id>/',recruiter_payout_initiation, 
+         name='recruiter_payout_initiation'),
+    
+    # History Dashboards
+    path('recruiter/payout/history/',recruiter_payment_history, name='recruiter_payment_history'),
+    path('user/payment/history/',user_payment_history, name='user_payment_history'),
 
-    path('payment/', include(('payment.urls', 'payment'), namespace='payment')),
+    path('about/mission/',about_mission, name='about_mission'),
+    path('about/how-it-works/',about_how_it_works, name='about_how_it_works'),
+    path('contact/',contact_us, name='contact_us'),
+    
+
+
+
+
+
+
+ 
 
 
 

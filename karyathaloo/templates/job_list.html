@@ -1,104 +1,135 @@
 {% load static %}
-
 {% block body %}
 {% include 'recruiter_navigation.html' %}
 
 <style>
   body {
-    background-color: #f0f8ff; /* Light blue background */
+    background-color: #f4f5fa;
+    font-family: 'Inter', sans-serif;
+  }
+
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 30px 0;
+  }
+
+  .page-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: #3a3a3a;
+  }
+
+  .jobs-wrapper {
+    background: #fff;
+    padding: 25px;
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
   }
 
   table {
-    background-color: #ffffff;
-    border-radius: 8px;
-    overflow: hidden;
+    width: 100%;
+    border-collapse: collapse;
   }
 
-  thead.thead-dark {
-    background-color: #6f42c1;
+  thead {
+    background: linear-gradient(90deg, #6f42c1, #9a68d4);
     color: #fff;
   }
 
+  thead th {
+    padding: 14px;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+  }
+
+  tbody tr {
+    transition: 0.2s ease;
+  }
+
   tbody tr:hover {
-    background-color: #e6e6fa;
+    background-color: #f1ecfc;
   }
 
-  .btn-primary {
-    background-color: #6f42c1;
-    border-color: #6f42c1;
-    font-weight: bold;
-    border-radius: 5px;
+  tbody td {
+    padding: 14px;
+    font-size: 15px;
+    color: #333;
   }
 
-  .btn-primary:hover {
-    background-color: #5a358a;
-    border-color: #5a358a;
+  .action-buttons a {
+    margin-right: 6px;
+    border-radius: 8px;
+    padding: 6px 12px;
+  }
+
+  .btn-purple {
+    background: #6f42c1;
+    color: #fff !important;
+  }
+
+  .btn-purple:hover {
+    background: #5a3590;
   }
 
   .btn-danger {
-    background-color: #dc3545;
-    border-color: #dc3545;
-    border-radius: 5px;
+    border-radius: 8px;
   }
 
-  .btn-danger:hover {
-    background-color: #b02a37;
-    border-color: #b02a37;
-  }
-
-  marquee {
-    font-family: 'Monotype Corsiva';
-    font-size: 27px;
-    margin-top: 1%;
-    color: rgb(54, 51, 48);
-    font-weight: bold;
-    background-color: rgb(167, 213, 126);
-    padding: 5px 0;
-    border-radius: 5px;
+  .empty-row {
+    font-size: 16px;
+    color: #888;
   }
 </style>
 
-<marquee>Job Listings</marquee>
-<hr>
+<div class="container mt-4">
 
-<div class="container mt-5">
-    <table class="table table-bordered table-hover">
-        <thead class="thead-dark">
-            <tr>
-                <th>S.No.</th>
-                <th>Company</th>
-                <th>Job Title</th>
-                <th>Job Type</th>
-                <th>Work Mode</th>
-                <th>Location</th>
-                <th>Creation Date</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for job in jobs %}
-            <tr>
-                <td>{{ forloop.counter }}</td>
-                <td>{{ job.recruiter.company }}</td>
-                <td>{{ job.title }}</td>
-                <td>{{ job.job_type }}</td>
-                <td>{{ job.work_mode }}</td>
-                <td>{{ job.location }}</td>
-                <td>{{ job.creation_date }}</td>
-                <td>
-                    <a href="{% url 'edit_jobdetails' job.id %}" class="btn btn-primary btn-sm">Edit</a>
-                    <a href="{% url 'recruiter_job_view' job.id %}" class="btn btn-primary btn-sm">View</a>
-                    <a href="{% url 'delete_job' job.id %}" class="btn btn-danger btn-sm" 
-                       onclick="return confirm('Are you sure you want to delete this job?');">Delete</a>
-                </td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="8" class="text-center">No jobs found.</td>
-            </tr>
-            {% endfor %}
-        </tbody>
+  <div class="page-header">
+    <div class="page-title">Job Listings</div>
+    <a href="{% url 'add_job' %}" class="btn btn-purple">+ Add Job</a>
+  </div>
+
+  <div class="jobs-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>S.No</th>
+          <th>Company</th>
+          <th>Job Title</th>
+          <th>Type</th>
+          <th>Mode</th>
+          <th>Location</th>
+          <th>Created</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {% for job in jobs %}
+        <tr>
+          <td>{{ forloop.counter }}</td>
+          <td>{{ job.recruiter.company }}</td>
+          <td>{{ job.title }}</td>
+          <td>{{ job.job_type }}</td>
+          <td>{{ job.work_mode }}</td>
+          <td>{{ job.location }}</td>
+          <td>{{ job.creation_date }}</td>
+          <td class="action-buttons">
+            <a href="{% url 'edit_jobdetails' job.id %}" class="btn btn-purple btn-sm">Edit</a>
+            <a href="{% url 'recruiter_job_view' job.id %}" class="btn btn-purple btn-sm">View</a>
+            <a href="{% url 'delete_job' job.id %}" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this job?');">Delete</a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="8" class="text-center empty-row">No jobs found.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
     </table>
+  </div>
 </div>
 
 {% endblock %}
