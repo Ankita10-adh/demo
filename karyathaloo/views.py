@@ -718,32 +718,46 @@ def latest_jobs(request):
     context = {'jobs': jobs}  
     return render(request, 'latest_jobs.html', context)
 
-def user_latestjobs(request):
-    jobs = Job.objects.all().order_by('-start_date')  
-    
-    user = request.user
-    try:
-        student = UserProfile.objects.get(user=user)  
-    except UserProfile.DoesNotExist:
-        student = None
 
-    li = []
-    if student:
-        data = Apply.objects.filter(student=student)
-        li = [i.job.id for i in data]  
-
-    context = {
-        'jobs': jobs,
-        'li': li
-    }  
-
-    return render(request, 'user_latestjobs.html', context)
 
 def job_detail(request, pid):
     job = get_object_or_404(Job, id=pid)
     return render(request, "job_detail.html", {"job": job})
 
 
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render
+from .models import Job, Apply, UserProfile
+
+
+@login_required(login_url='user_login')
+def user_latestjobs(request):
+
+    # get all jobs newest first
+    jobs = Job.objects.all().order_by('-start_date')
+
+    # logged-in user
+    user = request.user
+
+    # get student profile
+    student = None
+    try:
+        student = UserProfile.objects.get(user=user)
+    except UserProfile.DoesNotExist:
+        student = None
+
+    # list of applied job IDs
+    li = []
+    if student:
+        applied = Apply.objects.filter(student=student).values_list('job_id', flat=True)
+        li = list(applied)
+
+    context = {
+        'jobs': jobs,
+        'li': li,
+    }
+
+    return render(request, 'user_latestjobs.html', context)
 
 
 
