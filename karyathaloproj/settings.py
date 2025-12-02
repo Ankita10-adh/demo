@@ -82,16 +82,7 @@ WSGI_APPLICATION = 'karyathaloproj.wsgi.application'
 
 
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',  # Use MySQL
-        'NAME': 'karyathalo_db',                  # Your MySQL database name
-        'USER': 'karyathalo',                  # Your MySQL username
-        'PASSWORD': 'karyathalo@123',      # Your MySQL password
-        'HOST': 'localhost',                   # Usually localhost
-        'PORT': '3306',                        # Default MySQL port
-    }
-}
+
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
@@ -132,23 +123,7 @@ STATIC_URL = 'static/'
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'newsletter.karyathalo227@gmail.com'        
-EMAIL_HOST_PASSWORD = 'upio jnrl kmxe uguy'     # Gmail app password
-DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
-
-
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'  # or your email provider
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'karyathlo227@gmail.com'
-EMAIL_HOST_PASSWORD = 'mtca uvzf wokx yvpk'
 
 
 RECAPTCHA_PUBLIC_KEY = 'your_site_key_here'
