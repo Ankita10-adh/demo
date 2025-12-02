@@ -14,6 +14,27 @@ from datetime import date
 
 
 
+from django.shortcuts import render, redirect
+from .models import EmailOTP
+from django.contrib import messages
+
+def verify_signup_otp(request, user_id):
+    if request.method == "POST":
+        otp_entered = request.POST.get('otp')
+        try:
+            otp_record = EmailOTP.objects.filter(user_id=user_id).latest('created_at')
+            if otp_record.is_valid() and otp_record.otp == otp_entered:
+                # OTP correct, log in user
+                from django.contrib.auth import login
+                login(request, otp_record.user)
+                messages.success(request, "Login successful!")
+                return redirect('dashboard')
+            else:
+                messages.error(request, "Invalid or expired OTP!")
+        except EmailOTP.DoesNotExist:
+            messages.error(request, "OTP not found! Please request a new one.")
+    
+    return render(request, 'verify_otp.html')
 
 
 def index(request):
@@ -123,10 +144,54 @@ def recruiter_login(request):
 from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
 from django.contrib import messages
-from .models import UserProfile
+from .models import UserProfile, EmailOTP
+import re, random
+from django.core.mail import send_mail
+from django.conf import settings
 
 def user_signup(request):
     if request.method == 'POST':
+        # Step 1: Check if OTP is being submitted
+        if 'otp' in request.POST:
+            email = request.session.get('signup_email')
+            otp_input = request.POST.get('otp', '').strip()
+            try:
+                otp_obj = EmailOTP.objects.get(email=email)
+                if otp_obj.is_expired():
+                    messages.error(request, "OTP expired. Try signing up again.")
+                    otp_obj.delete()
+                    return redirect('user_signup')
+                if otp_input == otp_obj.otp:
+                    # OTP correct → create User and Profile
+                    user_data = request.session.get('signup_data')
+                    user = User.objects.create_user(
+                        username=user_data['email'],
+                        first_name=user_data['fname'],
+                        last_name=user_data['lname'],
+                        email=user_data['email'],
+                        password=user_data['password']
+                    )
+                    UserProfile.objects.create(
+                        user=user,
+                        mobile=user_data['contact'],
+                        image=user_data.get('image'),
+                        gender=user_data['gender']
+                    )
+                    otp_obj.verified = True
+                    otp_obj.save()
+                    # Clear session
+                    request.session.pop('signup_data')
+                    request.session.pop('signup_email')
+                    messages.success(request, "Signup successful! You can now log in.")
+                    return redirect('user_login')
+                else:
+                    messages.error(request, "Incorrect OTP.")
+                    return render(request, 'otp_verify.html')
+            except EmailOTP.DoesNotExist:
+                messages.error(request, "OTP not found. Try signing up again.")
+                return redirect('user_signup')
+
+        # Step 2: Normal signup form submission
         fname = request.POST.get('fname', '').strip()
         lname = request.POST.get('lname', '').strip()
         email = request.POST.get('email', '').strip()
@@ -134,11 +199,16 @@ def user_signup(request):
         password = request.POST.get('pwd', '')
         confirm_password = request.POST.get('cpwd', '')
         gender = request.POST.get('gender', '').strip()
-        image = request.FILES.get('image')  # optional
+        image = request.FILES.get('image')
 
         # Validation
         if not all([fname, lname, email, password, confirm_password, gender]):
             messages.error(request, "All fields are required.")
+            return render(request, 'user_signup.html')
+
+        email_regex = r'^[\w\.-]+@[\w\.-]+\.\w+$'
+        if not re.match(email_regex, email):
+            messages.error(request, "Invalid email format.")
             return render(request, 'user_signup.html')
 
         if password != confirm_password:
@@ -149,35 +219,35 @@ def user_signup(request):
             messages.error(request, "Email is already registered.")
             return render(request, 'user_signup.html')
 
-        try:
-            # Create the user
-            user = User.objects.create_user(
-                username=email,
-                first_name=fname,
-                last_name=lname,
-                email=email,   # Save email correctly
-                password=password
-            )
+        # Generate OTP
+        otp = str(random.randint(100000, 999999))
+        EmailOTP.objects.update_or_create(email=email, defaults={'otp': otp, 'verified': False})
 
-            # Create user profile
-            UserProfile.objects.create(
-                user=user,
-                mobile=contact,
-                image=image,
-                gender=gender,
-                type=""  # Can be set later if needed
-            )
+        # Send email
+        send_mail(
+            'Your Signup OTP',
+            f'Your OTP for Karyathalo signup is: {otp}. It is valid for 5 minutes.',
+            settings.EMAIL_HOST_USER,
+            [email],
+            fail_silently=False,
+        )
 
-            messages.success(request, "Signup successful. You can now log in.")
-            return redirect('user_login')  # Redirect to login after signup
+        # Save user data temporarily in session
+        request.session['signup_data'] = {
+            'fname': fname,
+            'lname': lname,
+            'email': email,
+            'contact': contact,
+            'password': password,
+            'gender': gender,
+            'image': image.name if image else None,
+        }
+        request.session['signup_email'] = email
 
-        except Exception as ex:
-            print("Signup error:", ex)
-            messages.error(request, "Something went wrong. Please try again.")
-            return render(request, 'user_signup.html')
+        return render(request, 'otp_verify.html')
 
-    # GET request
     return render(request, 'user_signup.html')
+
 
 
 
@@ -524,33 +594,34 @@ def recruiter_all(request):
     return render(request, 'recruiter_all.html', context)
 
 
+from django.contrib.auth import update_session_auth_hash
+
 def change_passwordadmin(request):
     if not request.user.is_authenticated:
         return redirect('admin_login')
-    error=""
 
-    # Fetch pending requests from the database
-    
-    if request.method=="POST":
-        c=request.POST['currentpassword']
-        n=request.POST['newpassword']
-        
-        try:
-            u=UserProfile.objects.get(id=request.user.id)
-            if u.check_password(c) :
-                u.set_password(n)
-                u.save()
-                error="No"
-            else:
-                error="Not"
-        except:
-            error="yes"
+    error = ""
 
-    context = {'error':error}
-    
-    return render(request, 'change_passwordadmin.html', context)
+    if request.method == "POST":
+        current = request.POST['currentpassword']
+        new = request.POST['newpassword']
 
-def change_passworduser(request):
+        user = request.user  
+
+        # Verify old password
+        if user.check_password(current):
+            user.set_password(new)
+            user.save()
+            
+
+            error = "No"
+        else:
+            error = "Not"
+
+    return render(request, 'change_passwordadmin.html', {"error": error})
+
+
+"""def change_passworduser(request):
     if not request.user.is_authenticated:
         return redirect('user_login')
     error=""
@@ -574,9 +645,70 @@ def change_passworduser(request):
 
     context = {'error':error}
     
-    return render(request, 'change_passworduser.html', context)
+    return render(request, 'change_passworduser.html', context)"""
+
+from django.contrib.auth import update_session_auth_hash
+
+def change_passworduser(request):
+    if not request.user.is_authenticated:
+        return redirect('user_login')
+
+    error = ""
+
+    if request.method == "POST":
+        current = request.POST['currentpassword']
+        new = request.POST['newpassword']
+
+        user = request.user  # MAIN USER (has password)
+
+        # Verify old password
+        if user.check_password(current):
+            user.set_password(new)
+            user.save()
+            
+            # Optional: keep user logged in after password change
+            # update_session_auth_hash(request, user)
+
+            error = "No"
+        else:
+            error = "Not"
+
+    return render(request, 'change_passworduser.html', {"error": error})
+
+from django.contrib.auth import update_session_auth_hash
 
 def change_passwordrecruiter(request):
+    if not request.user.is_authenticated:
+        return redirect('recruiter_login')
+
+    error = ""
+
+    if request.method == "POST":
+        current = request.POST['currentpassword']
+        new = request.POST['newpassword']
+
+        user = request.user 
+
+        try:
+            # Check old password
+            if user.check_password(current):
+                user.set_password(new)
+                user.save()
+
+                # Optional: keep recruiter logged in after password change
+                # update_session_auth_hash(request, user)
+
+                error = "No"
+            else:
+                error = "Not"
+
+        except Exception as e:
+            error = "yes"
+
+    return render(request, "change_passwordrecruiter.html", {"error": error})
+
+
+"""def change_passwordrecruiter(request):
     if not request.user.is_authenticated:
         return redirect('recruiter_login')
     error=""
@@ -600,7 +732,7 @@ def change_passwordrecruiter(request):
 
     context = {'error':error}
     
-    return render(request, 'change_passwordrecruiter.html', context)
+    return render(request, 'change_passwordrecruiter.html', context)"""
 
 
 
@@ -653,34 +785,80 @@ def add_job(request):
     return render(request, 'add_job.html')
 
 
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
+from datetime import datetime, date
+import magic # Requires 'python-magic' and libmagic installed
+# from .models import Job, Recruiter # Your models are assumed to be imported
 
-
-
+# --- CONFIGURATION CONSTANTS (Keep these for security) ---
+MAX_LOGO_SIZE = 2 * 1024 * 1024  # 2 MB
+ALLOWED_LOGO_MIME_TYPES = [
+    'image/jpeg',
+    'image/png',
+    'image/gif',
+]
 
 def edit_jobdetails(request, pid):
+    # Fetch job; uses pid (Job ID)
     job = get_object_or_404(Job, id=pid)
-    error = ""
 
+    # 1. Authentication Check
+    if not request.user.is_authenticated:
+        messages.error(request, "You must be logged in to edit job details.")
+        return redirect('recruiter_login')
+
+    # 2. SECURITY: Authorization Check (Fix for ForeignKey)
+    try:
+        # CORRECT ACCESS: Use the reverse manager (recruiter_set) and get the first object.
+        # This assumes a user will only have ONE Recruiter profile.
+        recruiter_profile = request.user.recruiter_set.first()
+        
+        if not recruiter_profile:
+            # If the user is logged in but has NO linked Recruiter object
+            messages.error(request, "User profile error. Your Recruiter profile is missing. Please complete your account setup.")
+            return redirect('recruiter_home')
+            
+    except Exception:
+        # Catch unexpected database errors during lookup
+        messages.error(request, "User profile lookup failed.")
+        return redirect('recruiter_home')
+        
+    # Crucial Authorization Check!
+    if job.recruiter != recruiter_profile:
+        messages.error(request, "Authorization Failed: You do not have permission to edit this job post.")
+        return redirect('recruiter_job_list') 
+
+    # 3. Process POST Request
     if request.method == "POST":
+        
+        # --- File Upload Security Check (Logo) ---
+        logo_file = request.FILES.get("logo")
+        if logo_file:
+            # 3a. Size Check (DoS Prevention)
+            if logo_file.size > MAX_LOGO_SIZE:
+                messages.error(request, f"Logo size error. Logo must be less than {MAX_LOGO_SIZE / (1024 * 1024):.0f} MB.")
+                return redirect('edit_jobdetails', pid=pid)
+
+            # 3b. MIME Type Validation (Prevents Script Injection)
+            try:
+                mime_type = magic.from_buffer(logo_file.read(1024), mime=True)
+                logo_file.seek(0)
+            except Exception:
+                messages.error(request, "Server error: Could not verify logo file type.")
+                return redirect('edit_jobdetails', pid=pid)
+
+            if mime_type not in ALLOWED_LOGO_MIME_TYPES:
+                messages.error(request, f"Invalid logo file type ({mime_type}). Only JPEG, PNG, or GIF images are accepted.")
+                return redirect('edit_jobdetails', pid=pid)
+            
+            job.logo = logo_file
+        
+        # --- Handle Text/Date Inputs ---
+        
+        # Assign fields safely (ORMs defend against SQLi)
         job.title = request.POST.get("title", job.title)
         job.company = request.POST.get("company", job.company)
-
-        # Handle logo safely
-        if request.FILES.get("logo"):
-            job.logo = request.FILES.get("logo")
-
-        # Handle start and end dates safely
-        start_date = request.POST.get("start_date")
-        end_date = request.POST.get("end_date")
-        try:
-            if start_date:
-                job.start_date = datetime.strptime(start_date, "%Y-%m-%d").date()
-            if end_date:
-                job.end_date = datetime.strptime(end_date, "%Y-%m-%d").date()
-        except ValueError:
-            error = "Invalid date format. Use YYYY-MM-DD."
-
-        # Assign remaining fields safely
         job.salary = request.POST.get("salary", job.salary)
         job.description = request.POST.get("description", job.description)
         job.experience = request.POST.get("experience", job.experience)
@@ -689,16 +867,35 @@ def edit_jobdetails(request, pid):
         job.job_type = request.POST.get("job_type", job.job_type)
         job.work_mode = request.POST.get("work_mode", job.work_mode)
 
-        # Save if no error
-        if not error:
-            try:
-                job.save()
-                return redirect("job_list")  # redirect to job listing page
-            except Exception as e:
-                error = f"Unable to update job: {e}"
+        start_date_str = request.POST.get("start_date")
+        end_date_str = request.POST.get("end_date")
+        
+        try:
+            if start_date_str:
+                job.start_date = datetime.strptime(start_date_str, "%Y-%m-%d").date()
+            if end_date_str:
+                job.end_date = datetime.strptime(end_date_str, "%Y-%m-%d").date()
+            
+            # Business Logic: End date must be after start date
+            if job.end_date and job.start_date and job.end_date < job.start_date:
+                messages.error(request, "The deadline cannot be before the start date.")
+                return redirect('edit_jobdetails', pid=pid)
+                
+            # --- Final Save ---
+            job.save()
+            messages.success(request, f"Job '{job.title}' details updated successfully.")
+            return redirect("recruiter_job_list") 
 
-    return render(request, "edit_jobdetails.html", {"job": job, "error": error})
-
+        except ValueError:
+            messages.error(request, "Invalid date format submitted. Please use YYYY-MM-DD.")
+            return redirect('edit_jobdetails', pid=pid)
+        except Exception as e:
+            messages.error(request, f"Unable to update job due to a server error: {e}")
+            return redirect('edit_jobdetails', pid=pid)
+            
+    # If GET request, render the form
+    context = {"job": job}
+    return render(request, "edit_jobdetails.html", context)
 
 
 
@@ -762,7 +959,7 @@ def user_latestjobs(request):
 
 
 
-def apply_job(request, pid):
+"""def apply_job(request, pid):
     if not request.user.is_authenticated:
         return redirect('user_login')
 
@@ -799,14 +996,98 @@ def apply_job(request, pid):
         'job': job,
         'error': error
     }
+    return render(request, 'apply_job.html', context)"""
+
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
+from datetime import date
+# Import the necessary modules/models below
+# from .models import Job, UserProfile, Apply
+# import magic # Ensure this is installed and libmagic is configured
+
+# --- CONFIGURATION CONSTANTS (Define these once at the top of your views.py) ---
+MAX_RESUME_SIZE = 5 * 1024 * 1024  # 5 MB in bytes
+ALLOWED_MIME_TYPES = [
+    'application/pdf',
+    'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+]
+
+def apply_job(request, pid):
+    # 1. Authentication and Profile Check
+    if not request.user.is_authenticated:
+        messages.info(request, "Please log in to apply for a job.")
+        return redirect('user_login')
+
+    job = get_object_or_404(Job, id=pid)
+    
+    try:
+       #1. linking the userprofile with the student
+        student = UserProfile.objects.get(user=request.user)
+    except UserProfile.DoesNotExist:
+        messages.error(request, "Your  profile is incomplete. Please update your profile first.")
+        return redirect('user_home') # Redirect to profile update page
+
+    # 2. Check for Previous Application (Access Control)
+    if Apply.objects.filter(job=job, student=student).exists():
+        messages.info(request, f"You have already applied for the job: {job.title}.")
+        return redirect('user_job_detail', job_id=job.id) 
+
+    today = date.today()
+    
+    # 3. Date Validation (Business Logic)
+    if today < job.start_date:
+        messages.warning(request, f"Form Not Open: Applications start on {job.start_date}.")
+        return redirect('user_job_detail', job_id=job.id)
+
+    if today > job.end_date:
+        messages.error(request, f"Application form closed: The deadline was {job.end_date}.")
+        return redirect('user_job_detail', job_id=job.id)
+
+    # 4. Handle Submission and Security Checks
+    if request.method == 'POST':
+        resume = request.FILES.get('resume')
+        
+        if not resume:
+            messages.error(request, "Submission Failed: Please select a resume file to upload.")
+            return redirect('apply_job', pid=pid)
+
+        # 4a. Size Check (DoS Prevention)
+        if resume.size > MAX_RESUME_SIZE:
+            messages.error(request, f"File size error. Resume must be less than {MAX_RESUME_SIZE / (1024 * 1024):.0f} MB.")
+            return redirect('apply_job', pid=pid)
+        
+        # 4b. MIME Type Validation (Prevents Script Injection)
+        try:
+            
+            mime_type = magic.from_buffer(resume.read(1024), mime=True)
+            resume.seek(0) # Reset pointer to allow Django to read it again
+        except Exception:
+            messages.error(request, "Internal server error: Could not verify file type.")
+            return redirect('apply_job', pid=pid)
+
+        if mime_type not in ALLOWED_MIME_TYPES:
+            messages.error(request, f"Invalid file type ({mime_type}). Only PDF and DOCX files are accepted.")
+            return redirect('apply_job', pid=pid)
+
+        # 5. Save the Application
+        try:
+            Apply.objects.create(
+                job=job,
+                student=student,
+                resume=resume
+            )
+            messages.success(request, f"Applied Successfully! Your application for '{job.title}' has been submitted.")
+            return redirect('user_job_detail', job_id=job.id)
+            
+        except Exception as e:
+            # Catch database/save errors
+            messages.error(request, f"A database error occurred during submission. Please try again. Error: {e}")
+            return redirect('apply_job', pid=pid)
+
+    # If GET request, render the form
+    context = {'job': job}
     return render(request, 'apply_job.html', context)
-
-
-
-
-
-
-
 
 
 def applied_candidatelist(request):
@@ -1035,118 +1316,6 @@ def newsletter(request):
 
     return JsonResponse({"error": "Invalid request method"}, status=405)"""
 
-# In your existing views.py file
-
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required
-from django.contrib import messages
-from django.db import transaction
-
-from .models import Recruiter, UserProfile, Apply, RecruiterPayout, PaymentTransaction # Import new models
-# Other imports...
-
-@login_required
-def recruiter_payout_initiation(request, application_id):
-    """
-    Recruiter initiates the payment process for an accepted application.
-    """
-    try:
-        recruiter = Recruiter.objects.get(user=request.user)
-    except Recruiter.DoesNotExist:
-        messages.error(request, "Access denied. You are not a Recruiter.")
-        return redirect('recruiter_dashboard')
-
-    application = get_object_or_404(Apply, id=application_id, job__recruiter=recruiter)
-
-    # Check if the application status is 'Accepted' (Required for payout)
-    if application.status != 'Accepted':
-        messages.error(request, "Cannot initiate payment. Employee status is not 'Accepted'.")
-        return redirect('recruiter_application_detail', application_id=application_id)
-
-    # Check if a Payout record already exists to prevent duplicate payment attempts
-    if RecruiterPayout.objects.filter(application=application).exists():
-        messages.warning(request, "Payment for this application has already been initiated or recorded.")
-        return redirect('recruiter_application_detail', application_id=application_id)
-
-    # Determine the payout amount (using the Job salary as the reference)
-    payout_amount = application.job.salary # You might adjust this based on your business logic
-
-    try:
-        with transaction.atomic():
-            # 1. Create the internal Payout Ledger entry
-            payout = RecruiterPayout.objects.create(
-                application=application,
-                recruiter=recruiter,
-                student=application.student,
-                amount=payout_amount,
-                payout_status='INITIATED'
-            )
-            
-            # 2. **INTEGRATE EXTERNAL GATEWAY HERE**
-            # Instead of a real API call, we simulate a successful transaction for the demo.
-            # In a real system, this would call your payment service (e.g., PayPal, Bank API).
-            
-            external_txn_id = f"TXN-{application.id}-{payout.id}-{payout.created_at.timestamp()}" # Placeholder ID
-            
-            # 3. Create the Transaction Detail record
-            PaymentTransaction.objects.create(
-                payout=payout,
-                transaction_id=external_txn_id,
-                gateway_name='Simulated Bank Transfer',
-                transaction_status='SUCCESS', # Simulate success for demo
-                processed_at=timezone.now() # Requires `from django.utils import timezone`
-            )
-            
-            # 4. Update the Payout Ledger status
-            payout.payout_status = 'COMPLETED'
-            payout.save()
-
-            messages.success(request, f"Payout of Rs. {payout_amount} successfully processed for {application.student.user.username}.")
-            
-    except Exception as e:
-        messages.error(request, f"An error occurred during payment processing: {e}")
-        # Optionally, update Payout status to FAILED here
-
-    return redirect('recruiter_application_detail', application_id=application_id)
-
-
-# --- Dashboard Views ---
-
-@login_required
-def recruiter_payment_history(request):
-    """
-    Recruiter dashboard to view all payout transactions they initiated.
-    """
-    try:
-        recruiter = Recruiter.objects.get(user=request.user)
-    except Recruiter.DoesNotExist:
-        messages.error(request, "Access denied.")
-        return redirect('naviagtion')
-
-    # Get all payouts initiated by this recruiter
-    payouts = RecruiterPayout.objects.filter(recruiter=recruiter).order_by('-created_at')
-
-    # Template name: core/recruiter_payout_history.html
-    return render(request, 'payments/recruiter_payout_history.html', {'payouts': payouts})
-
-
-@login_required
-def user_payment_history(request):
-    """
-    User/Employee dashboard to view all payments they received.
-    """
-    try:
-        user_profile = UserProfile.objects.get(user=request.user)
-    except UserProfile.DoesNotExist:
-        messages.error(request, "Access denied.")
-        return redirect('navigation')
-
-    # Get all payouts where this user is the student
-    received_payments = RecruiterPayout.objects.filter(student=user_profile, 
-                                                       payout_status='COMPLETED').order_by('-created_at')
-
-    # Template name: core/user_payment_history.html
-    return render(request, 'payments/user_payment_history.html', {'received_payments': received_payments})
 
 from django.shortcuts import render, redirect
 # from django.core.mail import send_mail # You'll need this for real email sending
@@ -1203,3 +1372,245 @@ def contact_us(request):
 
     # Renders the template, passing any message context
     return render(request, 'about_contact.html', message_context)
+
+#payment system 
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
+from django.db import transaction
+from django.urls import reverse
+from .models import Job, Recruiter, Payment
+from .utils import generate_esewa_checksum, generate_tx_code
+import hashlib
+import os 
+
+# --- ESEWA CONFIGURATION (Sandbox/UAT) ---
+# IMPORTANT: Replace these with your actual production keys when deploying.
+ESEWA_PAYMENT_URL = "https://uat.esewa.com.np/epay/main" 
+ESEWA_SUCCESS_URL = "http://127.0.0.1:8000/payment/success/" # Change to your domain and path
+ESEWA_FAILURE_URL = "http://127.0.0.1:8000/payment/failure/" # Change to your domain and path
+ESEWA_MERCHANT_CODE = "EPAYTEST" # Sandbox Merchant Code
+JOB_POST_FEE = 100.00 # Example fee for posting a job
+
+# --- RECRUITER PAYMENT INITIATION VIEW ---
+
+def job_payment(request, pid):
+    """
+    Initiates the payment process by generating a transaction, 
+    saving it to the DB, and redirecting the recruiter to eSewa.
+    """
+    if not request.user.is_authenticated:
+        messages.error(request, "Please log in to initiate payment.")
+        return redirect('recruiter_login')
+
+    job = get_object_or_404(Job, id=pid)
+    
+    # 1. Authorization Check (Ensures only the job owner can pay)
+    try:
+        recruiter_profile = request.user.recruiter_set.first() 
+        if not recruiter_profile or job.recruiter != recruiter_profile:
+            messages.error(request, "Authorization Failed: You cannot pay for this job.")
+            return redirect('recruiter_job_list') 
+    except Exception:
+        messages.error(request, "Profile error. Cannot verify recruiter status.")
+        return redirect('recruiter_home')
+
+    if job.is_paid:
+        messages.info(request, f"Job '{job.title}' is already paid and active.")
+        return redirect('recruiter_job_list')
+
+    try:
+        # Generate a unique transaction code (oid)
+        tx_code = generate_tx_code()
+        amount = JOB_POST_FEE
+        
+        # 2. Create PENDING Payment Record
+        payment = Payment.objects.create(
+            recruiter=recruiter_profile,
+            job=job,
+            tx_code=tx_code,
+            amount=amount,
+            status='PENDING'
+        )
+        
+        # 3. Generate Checksum
+        checksum = generate_esewa_checksum(tx_code, amount, ESEWA_MERCHANT_CODE)
+        
+        # 4. Prepare eSewa Payload (Must be sent as a POST request)
+        esewa_payload = {
+            'amt': amount,           # Actual amount
+            'psc': 0,                # Service charge (set to 0)
+            'pdc': 0,                # Delivery charge (set to 0)
+            'txAmt': 0,              # Tax amount (set to 0)
+            'tAmt': amount,          # Total amount (amt + psc + pdc + txAmt)
+            'pid': tx_code,          # Our unique transaction code (oid)
+            'scd': ESEWA_MERCHANT_CODE, # Merchant code
+            'su': ESEWA_SUCCESS_URL, # Success URL
+            'fu': ESEWA_FAILURE_URL, # Failure URL
+            'crs': checksum,         # Checksum for validation
+        }
+
+        context = {
+            'esewa_url': ESEWA_PAYMENT_URL,
+            'payload': esewa_payload,
+            'job': job,
+            'payment': payment
+        }
+        
+        # Render a form that auto-submits via JavaScript to eSewa
+        return render(request, 'job_payment.html', context)
+
+    except Exception as e:
+        messages.error(request, f"Could not initiate payment. Server error: {e}")
+        return redirect('recruiter_job_list')
+
+
+# --- ESEWA CALLBACK HANDLERS ---
+
+# Note: eSewa sends back the 'oid' (our tx_code), 'refId' (their reference ID), and 'amt' (amount) in GET request
+
+@transaction.atomic
+def payment_success(request):
+    """Handles successful payment callback from eSewa."""
+    # Check if this is a GET request (eSewa sends GET)
+    if request.method != 'GET':
+        messages.error(request, "Invalid payment callback method.")
+        return redirect('recruiter_home') 
+
+    # 1. Retrieve data from eSewa query parameters
+    tx_code = request.GET.get('oid') # Our internal transaction ID
+    ref_id = request.GET.get('refId') # eSewa Reference ID
+    amount = request.GET.get('amt') # Amount paid
+
+    if not tx_code or not ref_id or not amount:
+        messages.error(request, "Payment callback data is incomplete.")
+        return redirect('recruiter_job_list')
+
+    try:
+        payment = Payment.objects.select_for_update().get(tx_code=tx_code)
+        
+        # 2. Basic Validation Checks
+        if payment.status == 'SUCCESS':
+            messages.info(request, "This payment was already processed successfully.")
+            return redirect('recruiter_job_list')
+
+        if payment.amount != Decimal(amount):
+            messages.error(request, "Payment failed: Amount mismatch.")
+            # Update status to failed due to discrepancy
+            payment.status = 'FAILED'
+            payment.save()
+            return redirect('recruiter_job_list')
+
+        # 3. Check Payment Status with eSewa (Recommended but not implemented here for brevity)
+        # In a production app, you would make a server-to-server request to eSewa 
+        # to verify the transaction status using the 'ref_id' (their ID).
+        # For Sandbox, we trust the successful callback and proceed.
+
+        # 4. Mark Transaction as SUCCESS and activate the Job
+        payment.ref_id = ref_id
+        payment.status = 'SUCCESS'
+        payment.save()
+
+        # Activate the related job post
+        payment.job.is_paid = True
+        payment.job.save()
+        
+        messages.success(request, f"Payment successful! Reference ID: {ref_id}. Your job post is now active.")
+        return redirect('recruiter_job_list')
+
+    except Payment.DoesNotExist:
+        messages.error(request, "Payment record not found.")
+        return redirect('recruiter_job_list')
+    except Exception as e:
+        messages.error(request, f"An unexpected error occurred during payment processing: {e}")
+        return redirect('recruiter_job_list')
+
+
+def payment_failure(request):
+
+    tx_code = request.GET.get('oid')
+    if tx_code:
+        # Optionally, mark the existing payment record as 'FAILED'
+        try:
+            payment = Payment.objects.get(tx_code=tx_code, status='PENDING')
+            payment.status = 'FAILED'
+            payment.save()
+        except Payment.DoesNotExist:
+            pass # Ignore if record doesn't exist or is already marked
+    
+    messages.warning(request, "Payment transaction was cancelled or failed.")
+    return redirect('recruiter_job_list')
+
+
+# --- PAYMENT HISTORY VIEWS ---
+
+def payment_history(request):
+    """Allows a recruiter to view their job posting payment history."""
+    if not request.user.is_authenticated:
+        messages.error(request, "Please log in.")
+        return redirect('recruiter_login')
+
+    try:
+        recruiter_profile = request.user.recruiter_set.first()
+        if not recruiter_profile:
+            messages.error(request, "Profile not found.")
+            return redirect('recruiter_home')
+            
+        # Fetch all payments related to this recruiter, ordered newest first
+        payments = Payment.objects.filter(recruiter=recruiter_profile).order_by('-created_at').select_related('job')
+        
+        context = {
+            'payments': payments,
+            'is_recruiter': True
+        }
+        return render(request, 'payment_history.html', context)
+        
+    except Exception as e:
+        messages.error(request, f"Error fetching history: {e}")
+        return redirect('recruiter_home')
+
+#def user_payment_history(request):
+    """
+    (Placeholder) If regular users/students paid for a service, 
+    they would use a similar view linked to their profile.
+    """
+    #messages.info(request, "This view is for general user payment history, assuming a different service.")
+    # Implement logic similar to recruiter_payment_history, but filtering by UserProfile
+    #return redirect('user_home')
+
+def recruiter_job_list(request):
+   
+    # 1. Authentication Check
+    if not request.user.is_authenticated:
+        messages.error(request, "Please log in to view your job list.")
+        # Assumes 'recruiter_login' is the URL name for the login page
+        return redirect('recruiter_login') 
+
+    try:
+        # 2. Get Recruiter Profile
+        # This assumes your Recruiter model has a ForeignKey back to the User model.
+        # We use .first() because the related manager might return a queryset.
+        recruiter_profile = request.user.recruiter_set.first()
+        
+        if not recruiter_profile:
+            messages.error(request, "Recruiter profile not found.")
+            return redirect('recruiter_home') 
+            
+        # 3. Fetch Job Data
+        # Filter all Job objects where the recruiter field matches the current user's profile
+        jobs = Job.objects.filter(recruiter=recruiter_profile).order_by('-id')
+        
+        # 4. Prepare Context
+        context = {
+            'jobs': jobs,
+            # JOB_POST_FEE must be defined as a constant at the top of views.py
+            'job_post_fee': JOB_POST_FEE 
+        }
+        
+        # 5. Render Template
+        # Assumes the template is located at 'app_name/templates/recruiter_job_list.html'
+        return render(request, 'recruiter_job_list.html', context)
+        
+    except Exception as e:
+        # Log error in console and notify user
+        messages.error(request, f"Error fetching job list: {e}")
+        return redirect('recruiter_home')

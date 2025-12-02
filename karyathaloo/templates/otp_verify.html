@@ -1,0 +1,29 @@
+{% load static %}
+{% block body %}
+{% include 'navigation.html' %}
+
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-5">
+            <div class="signup-card text-center">
+                <h2 class="signup-header mb-4">Verify OTP</h2>
+                <p>We sent an OTP to your email. Enter it below to complete signup.</p>
+
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <input type="text" name="otp" class="form-control" placeholder="Enter OTP" required>
+                    </div>
+                    <button type="submit" class="btn btn-submit-signup">Verify OTP & Complete Signup</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

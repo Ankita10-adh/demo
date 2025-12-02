@@ -143,6 +143,14 @@ DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 
 
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'  # or your email provider
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'karyathlo227@gmail.com'
+EMAIL_HOST_PASSWORD = 'mtca uvzf wokx yvpk'
+
+
 RECAPTCHA_PUBLIC_KEY = 'your_site_key_here'
 RECAPTCHA_PRIVATE_KEY = 'your_secret_key_here'
 NOCAPTCHA = True

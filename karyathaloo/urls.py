@@ -46,18 +46,20 @@ urlpatterns = [
     #path("recruiter/application/update/<int:app_id>/<str:new_status>/",update_applicant_status, name="update_applicant_status"),
     path("recruiter_contact/<int:job_id>/",recruiter_contact, name="recruiter_contact"),
     path('newsletter/',newsletter, name='newsletter'),
-    
-    # Payout Initiation
-    path('recruiter/payout/initiate/<int:application_id>/',recruiter_payout_initiation, 
-         name='recruiter_payout_initiation'),
-    
-    # History Dashboards
-    path('recruiter/payout/history/',recruiter_payment_history, name='recruiter_payment_history'),
-    path('user/payment/history/',user_payment_history, name='user_payment_history'),
 
     path('about/mission/',about_mission, name='about_mission'),
     path('about/how-it-works/',about_how_it_works, name='about_how_it_works'),
     path('contact/',contact_us, name='contact_us'),
+
+    path('initiate/<int:pid>/',job_payment, name='job_payment'),
+    path('success/',payment_success, name='payment_success'),
+    path('failure/',payment_failure, name='payment_failure'),
+    path('history/',payment_history, name='payment_history'),
+    path('recruiter/jobs/',recruiter_job_list, name='recruiter_job_list'),
+    #path('history/',user_payment_history, name='user_payment_history'),
+    # OTP verification page
+    path('signup/verify-otp/',verify_signup_otp, name='verify_signup_otp'),
+
     
 
 

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Initiating Payment...</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .spinner {
+            border-top-color: #3498db;
+            animation: spin 1s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
+
+    <div class="max-w-md w-full bg-white p-8 shadow-lg rounded-xl text-center">
+        <div class="flex justify-center mb-6">
+            <div class="spinner h-10 w-10 border-4 border-gray-200 border-t-blue-500 rounded-full"></div>
+        </div>
+        <h1 class="text-2xl font-bold text-gray-800 mb-2">Redirecting to eSewa...</h1>
+        <p class="text-gray-600 mb-4">Please wait while we securely redirect you to the payment gateway to pay for job: <span class="font-medium text-blue-600">{{ job.title }}</span>.</p>
+        
+        <p class="text-lg font-semibold text-green-700">Amount: Rs. {{ payment.amount }}</p>
+        <p class="text-sm text-gray-500 mt-1">Transaction ID: {{ payment.tx_code }}</p>
+
+        <!-- The actual form that sends data to eSewa -->
+        <form id="esewaForm" method="POST" action="{{ esewa_url }}" class="mt-6 border p-4 rounded-lg bg-gray-50">
+            {% csrf_token %}
+            {% for key, value in payload.items %}
+                <input type="hidden" name="{{ key }}" value="{{ value }}">
+                <!-- Optional: Display key parameters for verification -->
+                <!-- <p class="text-xs text-gray-400">{{ key }}: {{ value }}</p> -->
+            {% endfor %}
+            <button type="submit" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg transition duration-150 shadow-md">
+                Proceed to eSewa Now
+            </button>
+        </form>
+
+        <p class="text-sm text-gray-400 mt-4">If the automatic redirection fails, click the button above.</p>
+    </div>
+
+    <script>
+        // Automatically submit the form once the page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            // Give a slight delay before submitting to ensure the user sees the redirection notice
+            setTimeout(function() {
+                document.getElementById('esewaForm').submit();
+            }, 500); 
+        });
+    </script>
+</body>
+</html>

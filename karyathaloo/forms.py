@@ -35,3 +35,7 @@ class SignUpForm(UserCreationForm):
         return email
 
 
+
+class OTPForm(forms.Form):
+    otp = forms.CharField(max_length=6, required=True, widget=forms.TextInput(attrs={'placeholder': 'Enter OTP'}))
+

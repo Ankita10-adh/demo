@@ -2,29 +2,117 @@
 {% block body %}
 {% include 'user_navigation.html' %}
 
-<div class="container mt-5">
-  <h2>Apply for {{ job.title }} at {{ job.company_name }}</h2>
+<style>
+    /* Inherit User theme colors */
+    :root {
+        --user-primary: #6f42c1; /* Deep Purple */
+        --user-secondary: #4a148c; /* Darker Purple */
+        --user-success: #28a745;
+        --user-danger: #dc3545;
+        --user-warning: #ffc107;
+    }
 
-  <!-- Show error/success messages -->
-  {% if error %}
-    <div class="alert 
-         {% if error == 'Applied Successfully!' %} alert-success
-         {% elif error == 'Application form close' %} alert-danger
-         {% elif error == 'Form Not Open' %} alert-warning
-         {% else %} alert-info {% endif %} mt-3">
-      {{ error }}
-    </div>
-  {% endif %}
+    /* Container Styling */
+    .apply-card {
+        background-color: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        padding: 40px;
+        margin-top: 40px;
+    }
 
-  <!-- Resume Upload Form -->
-  <form method="POST" enctype="multipart/form-data" class="mt-4">
-    {% csrf_token %}
-    <div class="form-group">
-      <label class="font-weight-bold">Upload Resume</label>
-      <input type="file" name="resume" class="form-control" required>
+    /* Heading Style */
+    .apply-header {
+        color: var(--user-secondary);
+        font-weight: 700;
+        font-size: 1.8rem;
+        margin-bottom: 25px;
+    }
+
+    /* Form Inputs */
+    .form-control-file, .form-control {
+        border-radius: 8px;
+        padding: 10px 15px;
+        font-size: 1rem;
+    }
+
+    /* Submit Button */
+    .btn-submit {
+        background-color: var(--user-success);
+        border: none;
+        color: white;
+        font-weight: 600;
+        padding: 12px 25px;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+    .btn-submit:hover {
+        background-color: #1e7e34;
+        transform: translateY(-1px);
+    }
+</style>
+
+<div class="container my-5">
+    <div class="apply-card mx-auto" style="max-width: 600px;">
+        
+        <h2 class="apply-header text-center">
+            <i class="fa-solid fa-file-export me-2"></i> Submit Application for {{ job.title }}
+        </h2>
+        <h5 class="text-center text-muted mb-4">at {{ job.company }}</h5>
+
+        {% if error %}
+            {% if error == 'Applied Successfully!' %}
+                <div class="alert alert-success d-flex align-items-center" role="alert">
+                    <i class="fa-solid fa-circle-check flex-shrink-0 me-2"></i>
+                    <div>
+                        **Success!** {{ error }} Your application has been submitted and is currently pending review.
+                    </div>
+                </div>
+            {% elif error == 'Application form close' %}
+                <div class="alert alert-danger d-flex align-items-center" role="alert">
+                    <i class="fa-solid fa-circle-xmark flex-shrink-0 me-2"></i>
+                    <div>
+                        **Deadline Passed!** Unfortunately, the application form for this job is now closed.
+                    </div>
+                </div>
+            {% elif error == 'Form Not Open' %}
+                <div class="alert alert-warning d-flex align-items-center" role="alert">
+                    <i class="fa-solid fa-triangle-exclamation flex-shrink-0 me-2"></i>
+                    <div>
+                        **Not Yet Open!** The application period for this job has not yet started.
+                    </div>
+                </div>
+            {% else %}
+                <div class="alert alert-info d-flex align-items-center" role="alert">
+                    <i class="fa-solid fa-circle-info flex-shrink-0 me-2"></i>
+                    <div>
+                        {{ error }}
+                    </div>
+                </div>
+            {% endif %}
+        {% endif %}
+
+        <form method="POST" enctype="multipart/form-data" class="mt-4">
+            {% csrf_token %}
+            
+            <div class="mb-4">
+                <label class="form-label fw-bold" for="resume_upload">
+                    <i class="fa-solid fa-file-pdf me-2"></i> Upload Your Resume (PDF preferred)
+                </label>
+                <input type="file" id="resume_upload" name="resume" class="form-control" required accept=".pdf, .doc, .docx">
+                <div class="form-text text-muted">Max file size: 5MB. Please upload your latest professional resume.</div>
+            </div>
+            
+            <button type="submit" class="btn btn-submit w-100">
+                <i class="fa-solid fa-check-to-slot me-2"></i> Submit Application
+            </button>
+        </form>
+        
+        <p class="text-center text-muted small mt-3">
+            By clicking "Submit Application," you agree to share your resume with {{ job.company }}.
+        </p>
+
     </div>
-    <button type="submit" class="btn btn-success mt-3">Submit Application</button>
-  </form>
 </div>
 
 {% endblock %}

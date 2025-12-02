@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Successful</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
+    <div class="max-w-md w-full bg-white p-8 shadow-lg rounded-xl text-center border-t-8 border-green-500">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-green-500 mx-auto mb-4" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+        </svg>
+        <h1 class="text-3xl font-bold text-gray-800 mb-2">Payment Successful!</h1>
+        <p class="text-gray-600 mb-4">Your job post is now active. Thank you for your payment.</p>
+        
+        <div class="bg-green-50 p-4 rounded-lg text-left mb-6">
+            <p class="text-sm font-medium text-green-700">Reference ID:</p>
+            <p class="text-lg font-bold text-green-900">{{ ref_id }}</p>
+            <p class="mt-2 text-sm font-medium text-green-700">Amount Paid:</p>
+            <p class="text-lg font-bold text-green-900">Rs. {{ amount }}</p>
+        </div>
+
+        <a href="{% url 'recruiter_job_list' %}" class="inline-block bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg transition duration-150 shadow-md">
+            Go to My Jobs
+        </a>
+    </div>
+</body>
+</html>
