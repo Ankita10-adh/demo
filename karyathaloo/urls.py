@@ -58,7 +58,7 @@ urlpatterns = [
     path('recruiter/jobs/',recruiter_job_list, name='recruiter_job_list'),
     #path('history/',user_payment_history, name='user_payment_history'),
     # OTP verification page
-    path('signup/verify-otp/',verify_signup_otp, name='verify_signup_otp'),
+    path('signup/verify-otp/',otp_verify, name='otp_verify'),
 
     
 

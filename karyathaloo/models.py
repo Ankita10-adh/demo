@@ -95,21 +95,30 @@ class Subscriber(models.Model):
         return self.email
 
 
-import uuid
-from datetime import datetime, timedelta
+from django.db import models
+from django.contrib.auth.models import User
+from django.utils import timezone
+from datetime import timedelta
+
 
 class EmailOTP(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
     otp = models.CharField(max_length=6)
-    created_at = models.DateTimeField(auto_now_add=True)
+    verified = models.BooleanField(default=False)
     expires_at = models.DateTimeField()
 
     def is_valid(self):
-        return datetime.now() <= self.expires_at
+        return timezone.now() <= self.expires_at
+
+    def save(self, *args, **kwargs):
+        if not self.expires_at:
+            self.expires_at = timezone.now() + timedelta(minutes=5)
+        super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"{self.user.username} - {self.otp}"
+        return f"{self.user.email} - {self.otp}"
 
+        
 
 
 import uuid

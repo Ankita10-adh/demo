@@ -40,6 +40,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'karyathaloo',
     'captcha',
+    'chatbot',
+    
     
    
 
@@ -54,6 +56,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+   
     
 ]
 
@@ -126,9 +129,11 @@ STATIC_URL = 'static/'
 
 
 
+
 RECAPTCHA_PUBLIC_KEY = 'your_site_key_here'
 RECAPTCHA_PRIVATE_KEY = 'your_secret_key_here'
 NOCAPTCHA = True
+
 
 
 

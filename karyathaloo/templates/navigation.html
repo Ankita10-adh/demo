@@ -147,11 +147,138 @@
             </div>
         </div>
     </nav>
-    
-    <div class="container my-5">
-        <h1 class="text-center text-dark-bg">Welcome to Karyathalo</h1>
-        <p class="text-center text-secondary">A modern platform for finding your next career opportunity.</p>
+<!-- CHATBOT BUTTON -->
+<div id="chatbot-btn" onclick="toggleChatbot()">🤖</div>
+
+<!-- CHATBOT WINDOW -->
+<div id="chatbot-box">
+    <div id="chatbot-header">
+        Karyathalo Assistant
+        <span onclick="toggleChatbot()" style="float:right;cursor:pointer;">✖</span>
     </div>
+
+    <div id="chatbot-messages"></div>
+
+    <div id="chatbot-input-area">
+        <input type="text" id="chatbot-input" placeholder="Ask me about jobs..." />
+        <button onclick="sendChatbotMessage()">Send</button>
+    </div>
+</div>
+<style>
+#chatbot-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: #4CAF50;
+    color: white;
+    font-size: 24px;
+    padding: 12px;
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 9999;
+}
+
+#chatbot-box {
+    display: none;
+    position: fixed;
+    bottom: 80px;
+    right: 20px;
+    width: 300px;
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    z-index: 9999;
+}
+
+#chatbot-header {
+    background: #4CAF50;
+    color: white;
+    padding: 10px;
+    border-radius: 10px 10px 0 0;
+}
+
+#chatbot-messages {
+    height: 250px;
+    overflow-y: auto;
+    padding: 10px;
+    font-size: 14px;
+}
+
+#chatbot-input-area {
+    display: flex;
+    border-top: 1px solid #ccc;
+}
+
+#chatbot-input {
+    flex: 1;
+    padding: 8px;
+    border: none;
+}
+
+#chatbot-input-area button {
+    padding: 8px;
+    background: #4CAF50;
+    color: white;
+    border: none;
+}
+.user-msg { color: blue; margin: 5px 0; }
+.bot-msg { color: green; margin: 5px 0; }
+</style>
+<script>
+const botRules = {
+    "hi": "Namaste! Welcome to Karyathalo. Are you looking for a job or looking to hire?",
+    "hello": "Namaste! Welcome to Karyathalo. Are you looking for a job or looking to hire?",
+    "find job": "Great! We have openings in IT, Marketing, and Construction. What is your skill?",
+    "search": "You can search for jobs by typing the role name in the search bar on our homepage.",
+    "status": "To check your application status, please log in to your dashboard.",
+    "apply": "To apply, click on any job card and hit the 'Apply Now' button.",
+    "help": "I can help you find jobs, track applications, or help with account login.",
+    "default": "I'm sorry, I didn't quite understand that. Try asking 'find jobs' or 'help'."
+};
+
+function toggleChatbot() {
+    let box = document.getElementById("chatbot-box");
+    box.style.display = box.style.display === "none" ? "block" : "none";
+}
+
+
+function sendChatbotMessage() {
+    let input = document.getElementById("chatbot-input");
+    let message = input.value.trim().toLowerCase(); 
+    if (!message) return;
+
+    let chat = document.getElementById("chatbot-messages");
+
+    chat.innerHTML += `<div class="user-msg"><b>You:</b> ${input.value}</div>`;
+    input.value = "";
+
+    chat.scrollTop = chat.scrollHeight;
+
+    let response = botRules["default"]; // Set default
+
+    for (let key in botRules) {
+        if (message.includes(key)) {
+            response = botRules[key];
+            break; 
+        }
+    }
+
+
+    setTimeout(() => {
+        chat.innerHTML += `<div class="bot-msg"><b>Bot:</b> ${response}</div>`;
+        chat.scrollTop = chat.scrollHeight;
+    }, 600);
+}
+
+// 4. Add "Enter" key support
+document.getElementById("chatbot-input")?.addEventListener("keypress", function(event) {
+    if (event.key === "Enter") {
+        sendChatbotMessage();
+    }
+});
+
+
+</script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
