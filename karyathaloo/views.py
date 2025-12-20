@@ -18,7 +18,7 @@ from django.shortcuts import render, redirect
 from .models import EmailOTP
 from django.contrib import messages
 
-def verify_signup_otp(request, user_id):
+"""def verify_signup_otp(request, user_id):
     if request.method == "POST":
         otp_entered = request.POST.get('otp')
         try:
@@ -34,7 +34,45 @@ def verify_signup_otp(request, user_id):
         except EmailOTP.DoesNotExist:
             messages.error(request, "OTP not found! Please request a new one.")
     
-    return render(request, 'verify_otp.html')
+    return render(request, 'verify_otp.html')"""
+
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from django.contrib.auth.models import User
+from .models import EmailOTP
+def otp_verify(request):
+    email = request.session.get("otp_email")
+
+    if not email:
+        messages.error(request, "Session expired. Signup again.")
+        return redirect("user_signup")
+
+    user = User.objects.get(username=email)
+    otp_obj = EmailOTP.objects.get(user=user)
+
+    if request.method == "POST":
+        otp_input = request.POST.get("otp")
+
+        if not otp_obj.is_valid():
+            messages.error(request, "OTP expired")
+            return redirect("user_signup")
+
+        if otp_obj.otp == otp_input:
+            otp_obj.verified = True
+            otp_obj.save()
+
+            user.is_active = True
+            user.save()
+
+            request.session.pop("otp_email")
+            messages.success(request, "Email verified. Please login.")
+            return redirect("user_login")
+
+        messages.error(request, "Incorrect OTP")
+
+    return render(request, "otp_verify.html")
+
+
 
 
 def index(request):
@@ -61,23 +99,27 @@ def admin_login(request):
     d = {'error': error}
     return render(request, "admin_login.html", d)
 
+from django.contrib.auth import authenticate, login
+from django.shortcuts import render, redirect
+from django.contrib import messages
 def user_login(request):
-    error = ""
     if request.method == "POST":
         u = request.POST['uname']
         p = request.POST['pwd']
+
         user = authenticate(username=u, password=p)
 
-        if user is not None:
+        if user:
+            if not user.is_active:
+                messages.error(request, "Please verify your email first.")
+                return redirect("user_login")
+
             login(request, user)
-            error = "No"
-            return redirect("user_home")   
-        else:
-            error = "yes"
+            return redirect("user_home")
 
-    return render(request, "user_login.html", {"error": error})
+        messages.error(request, "Invalid credentials")
 
-
+    return render(request, "user_login.html")
 
 
 
@@ -140,7 +182,6 @@ def recruiter_login(request):
 
     d = {'error': error}
     return render(request, 'recruiter_login.html', d)
-
 from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
 from django.contrib import messages
@@ -149,7 +190,7 @@ import re, random
 from django.core.mail import send_mail
 from django.conf import settings
 
-def user_signup(request):
+"""def user_signup(request):
     if request.method == 'POST':
         # Step 1: Check if OTP is being submitted
         if 'otp' in request.POST:
@@ -246,12 +287,63 @@ def user_signup(request):
 
         return render(request, 'otp_verify.html')
 
-    return render(request, 'user_signup.html')
+    return render(request, 'user_signup.html')"""
 
+def user_signup(request):
+    if request.method == 'POST':
+        fname = request.POST.get('fname')
+        lname = request.POST.get('lname')
+        email = request.POST.get('email')
+        contact = request.POST.get('contact')
+        password = request.POST.get('pwd')
+        confirm_password = request.POST.get('cpwd')
+        gender = request.POST.get('gender')
+        image = request.FILES.get('image')
 
+        if password != confirm_password:
+            messages.error(request, "Passwords do not match")
+            return render(request, "user_signup.html")
 
+        if User.objects.filter(username=email).exists():
+            messages.error(request, "Email already registered")
+            return render(request, "user_signup.html")
 
+        # Create inactive user
+        user = User.objects.create_user(
+            username=email,
+            email=email,
+            password=password,
+            first_name=fname,
+            last_name=lname,
+            is_active=False
+        )
 
+        UserProfile.objects.create(
+            user=user,
+            mobile=contact,
+            gender=gender,
+            image=image
+        )
+
+        otp = str(random.randint(100000, 999999))
+
+        EmailOTP.objects.create(
+            user=user,
+            otp=otp
+        )
+
+        send_mail(
+            "Your OTP Verification",
+            f"Your OTP is {otp}. Valid for 5 minutes.",
+            settings.EMAIL_HOST_USER,
+            [email],
+            fail_silently=False
+        )
+
+        request.session['otp_email'] = email
+        return redirect("otp_verify")
+
+    return render(request, "user_signup.html")
 
 def user_home(request):
     if not request.user.is_authenticated:
