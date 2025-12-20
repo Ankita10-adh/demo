@@ -18,15 +18,23 @@
         <form method="post">
             {% csrf_token %}
 
-            <div class="form-group mb-4">
-                <label for="email" class="font-weight-bold" style="font-size:1.2rem;">Email ID</label>
-                <input type="email" class="form-control" id="email" name="uname" placeholder="Enter your Email ID" style="font-size:1.1rem;" required>
-            </div>
+       <div class="form-group mb-4">
+    <label for="email" class="font-weight-bold" style="font-size:1.2rem;">Email ID</label>
+    <input type="email" class="form-control" id="email" name="uname"
+           placeholder="Enter your Email ID"
+           style="font-size:1.1rem;"
+           value="{{ email|default:'' }}"   
+           required>
+</div>
 
-            <div class="form-group mb-4">
-                <label for="password" class="font-weight-bold" style="font-size:1.2rem;">Password</label>
-                <input type="password" class="form-control" id="password" name="pwd" placeholder="Enter your password" style="font-size:1.1rem;" required>
-            </div>
+<div class="form-group mb-4">
+    <label for="password" class="font-weight-bold" style="font-size:1.2rem;">Password</label>
+    <input type="password" class="form-control" id="password" name="pwd"
+           placeholder="Enter your password"
+           style="font-size:1.1rem;"
+           required>
+</div>
+
 
             <div class="d-flex justify-content-between">
                 <input type="submit" value="Login" class="btn btn-dark btn-block" style="font-size:1.2rem; padding: 10px 0;">
