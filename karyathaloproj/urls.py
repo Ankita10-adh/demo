@@ -7,7 +7,7 @@ urlpatterns = [
     # Your main app URLs
     path('', include('karyathaloo.urls')),
     path("chatbot/", include("chatbot.urls")),
-
+    
 
     
     

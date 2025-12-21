@@ -59,6 +59,16 @@ urlpatterns = [
     #path('history/',user_payment_history, name='user_payment_history'),
     # OTP verification page
     path('signup/verify-otp/',otp_verify, name='otp_verify'),
+    path('recruiter-forgot-password/', recruiter_forgot_password, name='recruiter_forgot_password'),
+    path('recruiter-verify-otp/', recruiter_verify_otp, name='recruiter_verify_otp'),
+    path('recruiter-new-password/', recruiter_set_new_password, name='recruiter_set_new_password'),
+    path("user-forgot-password/", user_forgot_password, name="user_forgot_password"),
+    path("user-reset-otp/", user_reset_otp_verify, name="user_reset_otp_verify"),
+    path("user-new-password/", user_set_new_password, name="user_set_new_password"),
+
+
+
+
 
     
 

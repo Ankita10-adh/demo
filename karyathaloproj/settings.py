@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'chatbot',
     
     
+    
    
 
    
@@ -53,6 +54,7 @@ MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
+
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -85,7 +87,16 @@ WSGI_APPLICATION = 'karyathaloproj.wsgi.application'
 
 
 
-
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',  # Use MySQL
+        'NAME': 'karyathalo_db',                  # Your MySQL database name
+        'USER': 'karyathalo',                  # Your MySQL username
+        'PASSWORD': 'karyathalo@123',      # Your MySQL password
+        'HOST': 'localhost',                   # Usually localhost
+        'PORT': '3306',                        # Default MySQL port
+    }
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
