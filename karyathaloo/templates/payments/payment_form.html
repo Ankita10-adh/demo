@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Recruiter Payment Portal</title>
+    <style>
+        body { 
+            font-family: 'Segoe UI', Tahoma, sans-serif; 
+            margin: 40px; 
+            background-color: #f4f7f6; 
+        }
+        .container { 
+            max-width: 950px; 
+            margin: auto; 
+            background: white; 
+            padding: 30px; 
+            border-radius: 12px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
+        }
+        .payment-form { 
+            background: #f9f9f9; 
+            padding: 20px; 
+            border-radius: 8px; 
+            border-left: 5px solid #4CAF50; 
+            margin-bottom: 40px; 
+        }
+        input, select { 
+            width: 100%; 
+            padding: 10px; 
+            margin: 10px 0; 
+            border: 1px solid #ddd; 
+            border-radius: 4px; 
+        }
+        button { 
+            background-color: #4CAF50; 
+            color: white; 
+            padding: 12px 20px; 
+            border: none; 
+            border-radius: 4px; 
+            cursor: pointer; 
+            font-weight: bold; 
+        }
+        button:hover { 
+            background-color: #45a049; 
+        }
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin-top: 10px; 
+        }
+        th, td { 
+            padding: 12px; 
+            text-align: left; 
+            border-bottom: 1px solid #eee; 
+        }
+        th { 
+            background-color: #2c3e50; 
+            color: white; 
+        }
+        .status-badge { 
+            padding: 4px 8px; 
+            border-radius: 12px; 
+            font-size: 11px; 
+            font-weight: bold; 
+        }
+        .bg-success { 
+            background-color: #d4edda; 
+            color: #155724; 
+        }
+        .bg-warning { 
+            background-color: #fff3cd; 
+            color: #856404; 
+        }
+        .delete-link { 
+            color: #d32f2f; 
+            text-decoration: none; 
+            font-weight: bold; 
+        }
+        .delete-link:hover { 
+            text-decoration: underline; 
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>Recruiter Payment Portal</h2>
+
+    <!-- Payment Form -->
+    <div class="payment-form">
+        <h3>Initiate Payment</h3>
+        <form method="POST">
+            {% csrf_token %}
+            <label>Select Accepted Applicant:</label>
+            <select name="apply_id" required>
+                <option value="">-- Choose Applicant --</option>
+                {% for a in accepted_apps %}
+                    <option value="{{ a.id }}">
+                        {{ a.student.user.username }} ({{ a.job.title }})
+                    </option>
+                {% endfor %}
+            </select>
+
+            <label>Amount (NPR):</label>
+            <input type="number" name="amount" required min="0">
+
+            <button type="submit">Prepare Payment</button>
+        </form>
+    </div>
+
+    <hr>
+
+    <!-- Recent Payments -->
+    <h3>Recent Payments</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Applicant</th>
+                <th>Job</th>
+                <th>Amount</th>
+                <th>Status</th>
+                <th>Date</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in payments %}
+            <tr>
+                <td>{{ p.applied_user.student.user.username }}</td>
+                <td>{{ p.applied_user.job.title }}</td>
+                <td>Rs. {{ p.amount }}</td>
+                <td>
+                    {% if p.status == 'COMPLETE' %}
+                        <span class="status-badge bg-success">COMPLETE</span>
+                    {% else %}
+                        <span class="status-badge bg-warning">{{ p.status }}</span>
+                    {% endif %}
+                </td>
+                <td>{{ p.created_at|date:"Y-m-d H:i" }}</td>
+                <td>
+                    <a href="{% url 'delete_payment' p.id %}" onclick="return confirm('Are you sure?');" class="delete-link">Delete</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6" style="text-align:center;">No payments yet.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

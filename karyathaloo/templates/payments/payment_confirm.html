@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Confirm Payment - Karyathalo</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; margin: 40px; background-color: #f4f7f6; }
+        .container { max-width: 500px; margin: auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); text-align: center; }
+        button { background-color: #4CAF50; color: white; padding: 12px 20px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 16px; }
+        button:hover { background-color: #45a049; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>Confirm Payment</h2>
+    <p>You are about to pay <strong>Rs. {{ payment.amount }}</strong> to <strong>{{ payment.applied_user.student.user.username }}</strong> for the job <strong>{{ payment.applied_user.job.title }}</strong>.</p>
+
+    <form id="esewa-form" action="https://rc-epay.esewa.com.np/api/epay/main/v2/form" method="POST">
+        <input type="hidden" name="amount" value="{{ payment.amount }}">
+        <input type="hidden" name="tax_amount" value="0">
+        <input type="hidden" name="total_amount" value="{{ payment.amount }}">
+        <input type="hidden" name="transaction_uuid" value="{{ payment.transaction_uuid }}">
+        <input type="hidden" name="product_code" value="EPAYTEST">
+        <input type="hidden" name="product_service_charge" value="0">
+        <input type="hidden" name="product_delivery_charge" value="0">
+        <input type="hidden" name="success_url" value="http://127.0.0.1:8000/payments/success/">
+        <input type="hidden" name="failure_url" value="http://127.0.0.1:8000/payments/failure/">
+        <input type="hidden" name="signed_field_names" value="total_amount,transaction_uuid,product_code">
+        <input type="hidden" name="signature" value="{{ signature }}">
+        <button type="submit">Confirm and Pay NPR {{ payment.amount }}</button>
+    </form>
+
+    <p style="margin-top:15px; font-size:13px; color:#666;">If you are not redirected automatically, click the button above.</p>
+</div>
+<script>document.getElementById('esewa-form').submit();</script>
+
+</body>
+</html>
+
+
+
+

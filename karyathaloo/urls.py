@@ -40,7 +40,7 @@ urlpatterns = [
     path('apply_job/<int:pid>',apply_job,name="apply_job"),
     path('applied_candidatelist',applied_candidatelist,name="applied_candidatelist"),
     path('recruiter_job_view/<int:pid>',recruiter_job_view,name="recruiter_job_view"),
-    path('recruiter_applicant/<int:job_id>',recruiter_applicant,name="recruiter-applicant"),
+    #path('recruiter_applicant/<int:job_id>',recruiter_applicant,name="recruiter-applicant"),
     path('delete_job/<int:job_id>/',delete_job, name='delete_job'),
     path("recruiter/applicants/<int:job_id>/",recruiter_applied_candidates, name="recruiter_applied_candidates"),
     #path("recruiter/application/update/<int:app_id>/<str:new_status>/",update_applicant_status, name="update_applicant_status"),
@@ -51,10 +51,7 @@ urlpatterns = [
     path('about/how-it-works/',about_how_it_works, name='about_how_it_works'),
     path('contact/',contact_us, name='contact_us'),
 
-    path('initiate/<int:pid>/',job_payment, name='job_payment'),
-    path('success/',payment_success, name='payment_success'),
-    path('failure/',payment_failure, name='payment_failure'),
-    path('history/',payment_history, name='payment_history'),
+  
     path('recruiter/jobs/',recruiter_job_list, name='recruiter_job_list'),
     #path('history/',user_payment_history, name='user_payment_history'),
     # OTP verification page
@@ -65,24 +62,17 @@ urlpatterns = [
     path("user-forgot-password/", user_forgot_password, name="user_forgot_password"),
     path("user-reset-otp/", user_reset_otp_verify, name="user_reset_otp_verify"),
     path("user-new-password/", user_set_new_password, name="user_set_new_password"),
-
-
-
-
-
-    
-
-
-
-
-
-
- 
-
-
-
-
-
+    path('payments/',initiate_payment, name='initiate_payment'),
+    path('payments/success/',payment_success, name='payment_success'),
+    path('payments/failure/',payment_failure, name='payment_failure'),
+    path('payments/delete/<int:payment_id>/',delete_payment, name='delete_payment'),
+    path('payments/history/',payment_history, name='payment_history'),
+    path('employee/payments/',employee_payments_history, name='employee_payments_history'),
+    path(
+        'recruiter/job/<int:job_id>/applicants/',
+        recruiter_applicants,
+        name='recruiter_applicants'
+    ),
 
 
 

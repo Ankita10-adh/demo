@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Payment Successful</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: #f4f7f6; padding: 40px; }
+        .container { max-width: 600px; margin: auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); text-align: center; }
+        h2 { color: green; }
+        p { font-size: 16px; margin: 15px 0; }
+        a { display: inline-block; margin-top: 20px; padding: 10px 20px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 6px; }
+        a:hover { background-color: #45a049; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>Payment Successful!</h2>
+    <p><strong>Applicant:</strong> {{ payment.applied_user.student.user.username }}</p>
+    <p><strong>Job:</strong> {{ payment.applied_user.job.title }}</p>
+    <p><strong>Amount Paid:</strong> NPR {{ payment.amount }}</p>
+    <p><strong>Transaction ID:</strong> {{ payment.transaction_uuid }}</p>
+    <p><strong>eSewa Ref ID:</strong> {{ payment.transaction_code }}</p>
+
+    <a href="{% url 'initiate_payment' %}">Pay Another Applicant</a>
+</div>
+</body>
+</html>

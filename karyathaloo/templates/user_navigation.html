@@ -10,13 +10,12 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
     <style>
-        /* Color Variables for the standard User look */
         :root {
-            --user-primary: #6a11cb; /* Deep Purple */
-            --user-secondary: #2575fc; /* Bright Blue */
-            --user-bg: #f7f9fc; /* Very light background */
-            --user-text: #2c3e50; /* Dark Blue Text */
-            --user-accent: #ffc107; /* Yellow Accent */
+            --user-primary: #6a11cb;
+            --user-secondary: #2575fc;
+            --user-bg: #f7f9fc;
+            --user-text: #2c3e50;
+            --user-accent: #ffc107;
         }
 
         body {
@@ -25,7 +24,6 @@
             color: var(--user-text);
         }
 
-        /* Sleek Navbar (Replaces Large Header) */
         .user-navbar {
             background: linear-gradient(90deg, var(--user-primary), var(--user-secondary));
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
@@ -40,13 +38,13 @@
             display: flex;
             align-items: center;
         }
+
         .navbar-brand img {
-            width: 30px; /* Small, functional logo */
+            width: 30px;
             margin-right: 8px;
             border-radius: 4px;
         }
 
-        /* Navigation Links */
         .nav-link {
             color: rgba(255, 255, 255, 0.9) !important;
             font-weight: 500;
@@ -55,12 +53,11 @@
             transition: all 0.3s;
         }
 
-        .nav-link:hover {
+        .nav-link:hover, .nav-link.active {
             color: var(--user-accent) !important;
             background-color: rgba(255, 255, 255, 0.1);
         }
-        
-        /* User Name Display */
+
         .user-info-area {
             color: var(--user-accent);
             padding: 0 1rem;
@@ -70,7 +67,6 @@
             font-weight: 600;
         }
 
-        /* Logout Button - Minimalist */
         .btn-logout {
             background-color: transparent;
             color: #fff;
@@ -79,6 +75,7 @@
             padding: 6px 12px;
             font-weight: 500;
         }
+
         .btn-logout:hover {
             background-color: #fff;
             color: var(--user-primary);
@@ -88,7 +85,6 @@
 </head>
 
 <body>
-
     <nav class="navbar navbar-expand-lg navbar-dark user-navbar sticky-top">
         <div class="container-fluid px-4">
             
@@ -103,13 +99,35 @@
 
             <div class="collapse navbar-collapse" id="userNavbar">
                 <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-center">
-                    
-                    <li class="nav-item"><a class="nav-link" href="{% url 'user_home' %}"><i class="fa-solid fa-house me-1"></i> Dashboard</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{% url 'user_latestjobs' %}"><i class="fa-solid fa-briefcase me-1"></i> Jobs List</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#"><i class="fa-solid fa-money-check-dollar me-1"></i> My Payments</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{% url 'change_passworduser' %}"><i class="fa-solid fa-lock me-1"></i> Change Password</a></li>
-                    
-                    <li class="nav-item d-lg-none"><a class="nav-link" href="{% url 'Logout' %}"><i class="fa-solid fa-right-from-bracket me-1"></i> Logout</a></li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.path == '/user/' %}active{% endif %}" href="{% url 'user_home' %}">
+                            <i class="fa-solid fa-house me-1"></i> Dashboard
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.path == '/jobs/' %}active{% endif %}" href="{% url 'user_latestjobs' %}">
+                            <i class="fa-solid fa-briefcase me-1"></i> Jobs List
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.path == '/my-payments/' %}active{% endif %}" href="{% url 'employee_payments_history' %}">
+                            <i class="fa-solid fa-money-check-dollar me-1"></i> My Payments
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.path == '/change-password-user/' %}active{% endif %}" href="{% url 'change_passworduser' %}">
+                            <i class="fa-solid fa-lock me-1"></i> Change Password
+                        </a>
+                    </li>
+
+                    <li class="nav-item d-lg-none">
+                        <a class="nav-link" href="{% url 'Logout' %}">
+                            <i class="fa-solid fa-right-from-bracket me-1"></i> Logout
+                        </a>
+                    </li>
                 </ul>
 
                 <div class="d-flex align-items-center d-none d-lg-flex">
@@ -128,7 +146,8 @@
     </nav>
 
     <div class="container mt-4">
-        </div>
+        {% block content %}{% endblock %}
+    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
