@@ -48,3 +48,24 @@ def send_otp(user):
         recipient_list=[user.email],
         fail_silently=False,
     )
+
+import hmac
+import hashlib
+import base64
+
+def generate_esewa_signature(amount, tx_uuid, product_code="EPAYTEST"):
+    # Updated Sandbox Secret Key
+    secret_key = "8gBm/:&EnhH.1/q" 
+    
+    # Ensure total_amount is a string with no hidden spaces
+    # Example: "total_amount=100,transaction_uuid=ABC-123,product_code=EPAYTEST"
+    message = f"total_amount={amount},transaction_uuid={tx_uuid},product_code={product_code}"
+    
+    key = bytes(secret_key, 'utf-8')
+    message_bytes = bytes(message, 'utf-8')
+    
+    # Generate HMAC-SHA256
+    hash_hmac = hmac.new(key, message_bytes, hashlib.sha256).digest()
+    
+    # Return as Base64 string
+    return base64.b64encode(hash_hmac).decode("utf-8")
