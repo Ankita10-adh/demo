@@ -1,63 +1,192 @@
 {% load static %}
-
 {% block body %}
 
 {% include 'navigation.html' %}
-<style>
-    label{
-        font-size: 20px;
-    }
-</style>
-<div class="container my-5">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card shadow-lg p-4" style="border-radius: 15px; background-color: #f8f9fa;">
-                <h2 class="text-center mb-4" style="font-family: 'Monotype Corsiva'; font-size: 40px; color: #4a148c;">
-                    Recruiter Login
-                </h2>
 
-                <form method="post">
-                    {% csrf_token %}
-                    
-                    <div class="form-group">
-                        <label for="uname"><b>Email ID</b></label>
-                        <input type="text" class="form-control" id="uname" name="uname" placeholder="Enter Email ID" required style="font-size: 19px; padding: 10px;">
-                    </div>
-                    
- <div class="text-end mt-2">
-    <a href="{% url 'recruiter_forgot_password' %}">
-        Forgot Password?
-    </a>
-</div>
+<!-- Recruiter Login Section -->
+<section class="login-section recruiter-login d-flex align-items-center">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6 col-lg-5">
 
-
-                    <div class="form-group">
-                        <label for="pwd"><b>Password</b></label>
-                        <input type="password" class="form-control" id="pwd" name="pwd" placeholder="Enter password" required style="font-size: 19px; padding: 10px;">
+                <!-- Recruiter Card -->
+                <div class="login-card shadow-lg">
+                    <div class="text-center mb-4">
+                        <h3 class="login-title recruiter-title">Recruiter Login</h3>
+                        <p class="login-subtitle">Access your hiring dashboard</p>
                     </div>
 
-                    <div class="d-flex justify-content-between mt-4">
-                        <input type="submit" class="btn btn-dark btn-lg" value="Login" style="flex: 0 0 48%;">
-                        <a href="{% url 'recruiter_signup' %}" class="btn btn-primary btn-lg" style="flex: 0 0 48%;">Create Account</a>
-                    </div>
-                </form>
+                    <form method="post">
+                        {% csrf_token %}
+
+                        <!-- Email -->
+                        <div class="form-group mb-3">
+                            <label>Email Address</label>
+                            <input type="email"
+                                   class="form-control"
+                                   name="uname"
+                                   placeholder="recruiter@email.com"
+                                   required>
+                        </div>
+
+                        <!-- Password -->
+                        <div class="form-group mb-2">
+                            <label>Password</label>
+                            <input type="password"
+                                   class="form-control"
+                                   name="pwd"
+                                   placeholder="Enter password"
+                                   required>
+                        </div>
+
+                        <!-- Forgot Password -->
+                        <div class="text-end mb-3">
+                            <a href="{% url 'recruiter_forgot_password' %}" class="forgot-link">
+                                Forgot Password?
+                            </a>
+                        </div>
+
+                        <!-- Buttons -->
+                        <button type="submit" class="btn btn-recruiter w-100 mb-3">
+                            Login
+                        </button>
+
+                        <div class="text-center">
+                            <span class="text-muted">New recruiter?</span>
+                            <a href="{% url 'recruiter_signup' %}" class="register-link recruiter-link">
+                                Create Account
+                            </a>
+                        </div>
+                    </form>
+                </div>
+
             </div>
         </div>
     </div>
-</div>
+</section>
 
 {% include 'footer.html' %}
 
 {% if error %}
 <script>
-    var errorMsg = "{{ error|escapejs }}";
-    alert(errorMsg);
+    const msg = "{{ error|escapejs }}";
+    alert(msg);
 
-    // Redirect if login was successful
-    if (errorMsg === "Your account has been approved and logged in successfully.") {
+    if (msg === "Your account has been approved and logged in successfully.") {
         window.location.href = "{% url 'recruiter_home' %}";
     }
 </script>
 {% endif %}
 
 {% endblock %}
+<style>
+/* ================================
+   Recruiter Login Page Styling
+================================ */
+
+/* Page Background */
+.recruiter-login {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #4a148c, #2b0a4d);
+    display: flex;
+    align-items: center;
+}
+
+/* Card Container */
+.recruiter-login .login-card {
+    background: #ffffff;
+    border-radius: 18px;
+    padding: 42px 38px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+}
+
+/* Title */
+.recruiter-login .login-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: #4a148c;
+    margin-bottom: 6px;
+}
+
+/* Subtitle */
+.recruiter-login .login-subtitle {
+    font-size: 14px;
+    color: #6c757d;
+    margin-bottom: 28px;
+}
+
+/* Labels */
+.recruiter-login label {
+    font-weight: 600;
+    font-size: 14px;
+    color: #333;
+    margin-bottom: 6px;
+}
+
+/* Input Fields */
+.recruiter-login .form-control {
+    height: 48px;
+    font-size: 15px;
+    border-radius: 10px;
+    border: 1px solid #ced4da;
+    padding-left: 14px;
+    transition: all 0.3s ease;
+}
+
+.recruiter-login .form-control:focus {
+    border-color: #4a148c;
+    box-shadow: 0 0 0 0.15rem rgba(74, 20, 140, 0.25);
+}
+
+/* Forgot Password Link */
+.recruiter-login .forgot-link {
+    font-size: 13px;
+    color: #4a148c;
+    text-decoration: none;
+}
+
+.recruiter-login .forgot-link:hover {
+    text-decoration: underline;
+}
+
+/* Login Button */
+.recruiter-login .btn-recruiter {
+    background-color: #4a148c;
+    color: #fff;
+    height: 48px;
+    font-size: 16px;
+    font-weight: 600;
+    border-radius: 10px;
+    border: none;
+    transition: background 0.3s ease;
+}
+
+.recruiter-login .btn-recruiter:hover {
+    background-color: #36105f;
+}
+
+/* Create Account Link */
+.recruiter-login .register-link {
+    color: #4a148c;
+    font-weight: 600;
+    margin-left: 5px;
+    text-decoration: none;
+}
+
+.recruiter-login .register-link:hover {
+    text-decoration: underline;
+}
+
+/* Mobile Optimization */
+@media (max-width: 576px) {
+    .recruiter-login .login-card {
+        padding: 32px 26px;
+    }
+
+    .recruiter-login .login-title {
+        font-size: 24px;
+    }
+}
+
+
+</style>

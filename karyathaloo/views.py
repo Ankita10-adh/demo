@@ -982,7 +982,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from datetime import datetime, date
 import magic # Requires 'python-magic' and libmagic installed
-# from .models import Job, Recruiter # Your models are assumed to be imported
+
 
 # --- CONFIGURATION CONSTANTS (Keep these for security) ---
 MAX_LOGO_SIZE = 2 * 1024 * 1024  # 2 MB
@@ -1194,12 +1194,11 @@ def user_latestjobs(request):
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from datetime import date
-# Import the necessary modules/models below
-# from .models import Job, UserProfile, Apply
-# import magic # Ensure this is installed and libmagic is configured
+from .models import Job, UserProfile, Apply
+import magic  # Ensure python-magic is installed
 
-# --- CONFIGURATION CONSTANTS (Define these once at the top of your views.py) ---
-MAX_RESUME_SIZE = 5 * 1024 * 1024  # 5 MB in bytes
+# --- CONFIGURATION ---
+MAX_RESUME_SIZE = 5 * 1024 * 1024  # 5 MB
 ALLOWED_MIME_TYPES = [
     'application/pdf',
     'application/msword',
@@ -1207,79 +1206,88 @@ ALLOWED_MIME_TYPES = [
 ]
 
 def apply_job(request, pid):
-    # 1. Authentication and Profile Check
+    """
+    Handles job application submission and validation on a single page.
+    Redirects to user_latestjobs on success or pre-validation failure.
+    """
+    # 1. Authentication Check
     if not request.user.is_authenticated:
         messages.info(request, "Please log in to apply for a job.")
         return redirect('user_login')
 
     job = get_object_or_404(Job, id=pid)
     
+    # 2. Profile Verification
     try:
-       #1. linking the userprofile with the student
         student = UserProfile.objects.get(user=request.user)
     except UserProfile.DoesNotExist:
-        messages.error(request, "Your  profile is incomplete. Please update your profile first.")
-        return redirect('user_home') # Redirect to profile update page
+        messages.error(request, "Your profile is incomplete. Please update it before applying.")
+        return redirect('user_home')
 
-    # 2. Check for Previous Application (Access Control)
-    if Apply.objects.filter(job=job, student=student).exists():
-        messages.info(request, f"You have already applied for the job: {job.title}.")
-        return redirect('user_job_detail', job_id=job.id) 
+    # 3. Pre-Validation (Previous Application & Dates)
+    already_applied = Apply.objects.filter(job=job, student=student).exists()
+    if already_applied:
+        messages.info(request, f"You have already applied for {job.title}.")
+        return redirect('user_latestjobs')
 
     today = date.today()
-    
-    # 3. Date Validation (Business Logic)
     if today < job.start_date:
-        messages.warning(request, f"Form Not Open: Applications start on {job.start_date}.")
-        return redirect('user_job_detail', job_id=job.id)
+        messages.warning(request, f"Applications for this job start on {job.start_date}.")
+        return redirect('user_latestjobs')
 
     if today > job.end_date:
-        messages.error(request, f"Application form closed: The deadline was {job.end_date}.")
-        return redirect('user_job_detail', job_id=job.id)
+        messages.error(request, f"Deadline passed: This job closed on {job.end_date}.")
+        return redirect('user_latestjobs')
 
-    # 4. Handle Submission and Security Checks
+    # 4. Handle POST Submission
     if request.method == 'POST':
         resume = request.FILES.get('resume')
         
+        # Validation Flag
+        error_found = False
+
         if not resume:
-            messages.error(request, "Submission Failed: Please select a resume file to upload.")
-            return redirect('apply_job', pid=pid)
-
-        # 4a. Size Check (DoS Prevention)
-        if resume.size > MAX_RESUME_SIZE:
-            messages.error(request, f"File size error. Resume must be less than {MAX_RESUME_SIZE / (1024 * 1024):.0f} MB.")
-            return redirect('apply_job', pid=pid)
+            messages.error(request, "Please select a resume file to upload.")
+            error_found = True
         
-        # 4b. MIME Type Validation (Prevents Script Injection)
-        try:
-            
-            mime_type = magic.from_buffer(resume.read(1024), mime=True)
-            resume.seek(0) # Reset pointer to allow Django to read it again
-        except Exception:
-            messages.error(request, "Internal server error: Could not verify file type.")
-            return redirect('apply_job', pid=pid)
+        elif resume.size > MAX_RESUME_SIZE:
+            messages.error(request, f"File too large. Max size is {MAX_RESUME_SIZE / (1024 * 1024):.0f}MB.")
+            error_found = True
+        
+        else:
+            # MIME Type Security Check
+            try:
+                # Read start of file for magic check
+                mime_type = magic.from_buffer(resume.read(1024), mime=True)
+                resume.seek(0) # Reset pointer
+                
+                if mime_type not in ALLOWED_MIME_TYPES:
+                    messages.error(request, "Invalid file format. Only PDF and DOCX are allowed.")
+                    error_found = True
+            except Exception:
+                messages.error(request, "Could not verify file type. Please try a different file.")
+                error_found = True
 
-        if mime_type not in ALLOWED_MIME_TYPES:
-            messages.error(request, f"Invalid file type ({mime_type}). Only PDF and DOCX files are accepted.")
-            return redirect('apply_job', pid=pid)
+        # 5. Finalize Application
+        if not error_found:
+            try:
+                Apply.objects.create(
+                    job=job,
+                    student=student,
+                    resume=resume
+                )
+                messages.success(request, f"Applied Successfully for '{job.title}'!")
+                return redirect('user_latestjobs')
+            except Exception as e:
+                messages.error(request, "A system error occurred. Please try again later.")
+        
+        # If error_found is True, logic falls through to render the form again with messages
 
-        # 5. Save the Application
-        try:
-            Apply.objects.create(
-                job=job,
-                student=student,
-                resume=resume
-            )
-            messages.success(request, f"Applied Successfully! Your application for '{job.title}' has been submitted.")
-            return redirect('user_job_detail', job_id=job.id)
-            
-        except Exception as e:
-            # Catch database/save errors
-            messages.error(request, f"A database error occurred during submission. Please try again. Error: {e}")
-            return redirect('apply_job', pid=pid)
-
-    # If GET request, render the form
-    context = {'job': job}
+    # If GET request OR POST with errors, render the same page
+    context = {
+        'job': job,
+        'today': today,
+    }
     return render(request, 'apply_job.html', context)
 
 

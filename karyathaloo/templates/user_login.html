@@ -1,68 +1,138 @@
 {% load static %}
-
 {% block body %}
 
 {% include 'navigation.html' %}
 
-<!-- Modern Hero / Page Title -->
-<div class="text-center my-5">
-    <h2 class="display-4" style="font-family: 'Monotype Corsiva'; color: #4d691b; font-weight:bold;">
-        User Login
-    </h2>
-    <hr style="width:120px; border-top:4px solid #4d691b;">
-</div>
+<!-- Background Section -->
+<section class="login-section d-flex align-items-center">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6 col-lg-5">
 
-<!-- Centered Login Card -->
-<div class="d-flex justify-content-center mb-5">
-    <div class="card shadow-lg p-5" style="width: 100%; max-width: 450px; border-radius: 15px;">
-        <form method="post">
-            {% csrf_token %}
+                <!-- Login Card -->
+                <div class="login-card shadow-lg">
+                    <div class="text-center mb-4">
+                        <h3 class="login-title">Welcome Back</h3>
+                        <p class="login-subtitle">Login to your account</p>
+                    </div>
 
-       <div class="form-group mb-4">
-    <label for="email" class="font-weight-bold" style="font-size:1.2rem;">Email ID</label>
-    <input type="email" class="form-control" id="email" name="uname"
-           placeholder="Enter your Email ID"
-           style="font-size:1.1rem;"
-           value="{{ email|default:'' }}"   
-           required>
-</div>
+                    <form method="post">
+                        {% csrf_token %}
 
-<div class="form-group mb-4">
-    <label for="password" class="font-weight-bold" style="font-size:1.2rem;">Password</label>
-    <input type="password" class="form-control" id="password" name="pwd"
-           placeholder="Enter your password"
-           style="font-size:1.1rem;"
-           required>
-</div>
+                        <!-- Email -->
+                        <div class="form-group mb-3">
+                            <label>Email Address</label>
+                            <input type="email"
+                                   class="form-control"
+                                   name="uname"
+                                   placeholder="example@email.com"
+                                   value="{{ email|default:'' }}"
+                                   required>
+                        </div>
 
-<div class="text-end mt-2">
-    <a href="{% url 'user_forgot_password' %}">
-        Forgot Password?
-    </a>
-</div>
+                        <!-- Password -->
+                        <div class="form-group mb-2">
+                            <label>Password</label>
+                            <input type="password"
+                                   class="form-control"
+                                   name="pwd"
+                                   placeholder="Enter password"
+                                   required>
+                        </div>
 
-            <div class="d-flex justify-content-between">
-                <input type="submit" value="Login" class="btn btn-dark btn-block" style="font-size:1.2rem; padding: 10px 0;">
-                <a href="{% url 'user_signup' %}" class="btn btn-outline-dark btn-block" style="font-size:1.2rem; padding: 10px 0;">Create Account</a>
+                        <!-- Forgot Password -->
+                        <div class="text-end mb-3">
+                            <a href="{% url 'user_forgot_password' %}" class="forgot-link">
+                                Forgot Password?
+                            </a>
+                        </div>
+
+                        <!-- Buttons -->
+                        <button type="submit" class="btn btn-primary w-100 mb-3">
+                            Login
+                        </button>
+
+                        <div class="text-center">
+                            <span class="text-muted">Don't have an account?</span>
+                            <a href="{% url 'user_signup' %}" class="register-link">
+                                Create Account
+                            </a>
+                        </div>
+
+                    </form>
+                </div>
+
             </div>
-        </form>
+        </div>
     </div>
-</div>
+</section>
 
 {% include 'footer.html' %}
 
 <!-- Alerts -->
 {% if error == "No" %}
 <script>
-    alert("Login Successful!!");
+    alert("Login Successful!");
     window.location = "{% url 'user_home' %}";
 </script>
 {% endif %}
 
 {% if error == "yes" %}
 <script>
-    alert("Invalid login credential, Try Again!!");
+    alert("Invalid credentials. Please try again.");
 </script>
 {% endif %}
 
 {% endblock %}
+
+<style>
+.login-section {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #4d691b, #1e2e0e);
+}
+
+.login-card {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 16px;
+    padding: 40px;
+}
+
+.login-title {
+    font-weight: 700;
+    color: #1e2e0e;
+}
+
+.login-subtitle {
+    font-size: 14px;
+    color: #6c757d;
+}
+
+.form-control {
+    height: 45px;
+    border-radius: 8px;
+}
+
+.btn-primary {
+    background-color: #4d691b;
+    border: none;
+    height: 45px;
+    font-weight: 600;
+}
+
+.btn-primary:hover {
+    background-color: #3b5314;
+}
+
+.forgot-link {
+    font-size: 14px;
+    color: #4d691b;
+    text-decoration: none;
+}
+
+.register-link {
+    font-weight: 600;
+    color: #4d691b;
+    margin-left: 5px;
+    text-decoration: none;
+}
+</style>
